@@ -1,4 +1,5 @@
 from sqlalchemy import (
+    Text,
     ForeignKeyConstraint,
     Index,
     Table,
@@ -76,7 +77,7 @@ daily_todo_task = Table(
         server_default=func.now(),
         nullable=False,
     ),
-    Column("content", String(256), nullable=False),
+    Column("content", Text, nullable=False),
     Column("is_completed", Boolean, nullable=False, default=False),
     Column("todo_repository_id", Integer, nullable=False),
     Column("date", postgresql.TIMESTAMP(timezone=True), nullable=False),
