@@ -11,8 +11,11 @@ engine = create_async_engine(settings.SQLALCHEMY_DATABASE_URI, future=True)
 
 
 async def get_session():
-    async_session = async_sessionmaker(
-        engine, expire_on_commit=False, class_=AsyncSession
+    async_session_factory = async_sessionmaker(
+        bind=engine,
+        expire_on_commit=False,
+        autoflush=False,
+        class_=AsyncSession,
     )
-    async with async_session() as session:
+    async with async_session_factory() as session:
         yield session
