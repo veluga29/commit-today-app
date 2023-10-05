@@ -11,6 +11,7 @@ sqlalchemy = "==2.0.0"
 asyncpg = "==0.28.0"
 httpx = "==0.24.1"
 greenlet = "==2.0.2"
+pydantic-settings = "==2.0.3"
 
 
 [dev-packages]

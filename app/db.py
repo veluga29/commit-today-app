@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import (
 from app import settings
 
 
-engine = create_async_engine(settings.SQLALCHEMY_DATABASE_URI, future=True)
+engine = create_async_engine(settings.POSTGRES_SETTINGS.get_dsn(), future=True)
 
 
 async def get_session():
