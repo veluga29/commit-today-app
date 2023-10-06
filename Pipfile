@@ -24,6 +24,7 @@ locust = "*"
 pytest = "*"
 pytest-asyncio = "*"
 pytest-cov = "*"
+Faker = "*"
 
 [requires]
 python_version = "3.11"

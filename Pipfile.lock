@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "734eb245c49f859bdd33dce8b7d84fe9a332ead64685645bb2590b18f4adedfd"
+            "sha256": "b01c04b47c1273ef0c7250355cc8f864353c26a1725852288f36582432aefa60"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -815,6 +815,14 @@
             "markers": "python_version >= '3.8'",
             "version": "==7.3.2"
         },
+        "faker": {
+            "hashes": [
+                "sha256:8fba91068dc26e3159c1ac9f22444a2338704b0991d86605322e454bda420092",
+                "sha256:d5d5953556b0fb428a46019e03fc2d40eab2980135ddef5a9eb3d054947fdf83"
+            ],
+            "markers": "python_version >= '3.8'",
+            "version": "==19.6.2"
+        },
         "flake8": {
             "hashes": [
                 "sha256:d5b3857f07c030bdb5bf41c7f53799571d75c4491748a3adcd47de929e34cd23",
@@ -1113,12 +1121,12 @@
         },
         "locust": {
             "hashes": [
-                "sha256:cd54f179b679ae927e9b3ffd2b6a7c89c1078103cfbe96b4dd53c7872774b619",
-                "sha256:d0f01f9fca6a7d9be987b32185799d9e219fce3b9a3b8250ea03e88003335804"
+                "sha256:72e4d41a5e674f5149cc6cb5d70b3382b4bfe38fba9e7a29f5368052b6e68d44",
+                "sha256:e50bb4647370c22d27010cd700cc87a519a0f25fef012efa7b42af68982b58f0"
             ],
             "index": "pypi",
             "markers": "python_version >= '3.7'",
-            "version": "==2.16.1"
+            "version": "==2.17.0"
         },
         "markupsafe": {
             "hashes": [
@@ -1392,6 +1400,14 @@
             "index": "pypi",
             "markers": "python_version >= '3.7'",
             "version": "==4.1.0"
+        },
+        "python-dateutil": {
+            "hashes": [
+                "sha256:0123cacc1627ae19ddf3c27a5de5bd67ee4586fbdd6440d9748f8abb483d3e86",
+                "sha256:961d03dc3453ebbc59dbdea9e4e11c5651520a876d0f4db161e8674aae935da9"
+            ],
+            "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'",
+            "version": "==2.8.2"
         },
         "pyzmq": {
             "hashes": [
