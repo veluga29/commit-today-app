@@ -90,42 +90,43 @@ daily_todo_task = Table(
 )
 
 
-mapper_registry.map_imperatively(
-    TodoRepository,
-    todo_repository,
-    properties={
-        "daily_todos": relationship(
-            DailyTodo,
-            back_populates="todo_repository",
-            cascade="all, delete-orphan",
-        )
-    },
-    eager_defaults=True,
-)
-mapper_registry.map_imperatively(
-    DailyTodo,
-    daily_todo,
-    properties={
-        "todo_repository": relationship(
-            TodoRepository,
-            back_populates="daily_todos",
-        ),
-        "daily_todo_tasks": relationship(
-            DailyTodoTask,
-            back_populates="daily_todo",
-            cascade="all, delete-orphan",
-        ),
-    },
-    eager_defaults=True,
-)
-mapper_registry.map_imperatively(
-    DailyTodoTask,
-    daily_todo_task,
-    properties={
-        "daily_todo": relationship(
-            DailyTodo,
-            back_populates="daily_todo_tasks",
-        ),
-    },
-    eager_defaults=True,
-)
+def start_mappers():
+    mapper_registry.map_imperatively(
+        TodoRepository,
+        todo_repository,
+        properties={
+            "daily_todos": relationship(
+                DailyTodo,
+                back_populates="todo_repository",
+                cascade="all, delete-orphan",
+            )
+        },
+        eager_defaults=True,
+    )
+    mapper_registry.map_imperatively(
+        DailyTodo,
+        daily_todo,
+        properties={
+            "todo_repository": relationship(
+                TodoRepository,
+                back_populates="daily_todos",
+            ),
+            "daily_todo_tasks": relationship(
+                DailyTodoTask,
+                back_populates="daily_todo",
+                cascade="all, delete-orphan",
+            ),
+        },
+        eager_defaults=True,
+    )
+    mapper_registry.map_imperatively(
+        DailyTodoTask,
+        daily_todo_task,
+        properties={
+            "daily_todo": relationship(
+                DailyTodo,
+                back_populates="daily_todo_tasks",
+            ),
+        },
+        eager_defaults=True,
+    )

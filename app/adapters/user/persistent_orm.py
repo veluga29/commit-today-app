@@ -1,4 +1,4 @@
-from sqlalchemy import Table, Column, Integer, String, ForeignKey, func
+from sqlalchemy import Table, Column, Integer, String, func
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.orm import registry
 
@@ -32,4 +32,5 @@ user = Table(
 )
 
 
-mapper_registry.map_imperatively(User, user)
+def start_mappers():
+    mapper_registry.map_imperatively(User, user)
