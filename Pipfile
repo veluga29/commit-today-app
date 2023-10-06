@@ -22,6 +22,7 @@ black = "*"
 coverage = "*"
 locust = "*"
 pytest = "*"
+pytest-asyncio = "*"
 pytest-cov = "*"
 
 [requires]
