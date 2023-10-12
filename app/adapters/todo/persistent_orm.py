@@ -18,8 +18,8 @@ from app.domain.todo.models import TodoRepository, DailyTodo, DailyTodoTask
 
 mapper_registry = registry()
 
-todo_repository = Table(
-    "todo_repository",
+todo_repositories = Table(
+    "todo_repositories",
     mapper_registry.metadata,
     Column("id", Integer, primary_key=True, autoincrement=True),
     Column(
@@ -41,12 +41,12 @@ todo_repository = Table(
     Column("description", String(256), nullable=False, default=""),
 )
 
-daily_todo = Table(
-    "daily_todo",
+daily_todos = Table(
+    "daily_todos",
     mapper_registry.metadata,
     Column(
         "todo_repository_id",
-        ForeignKey(todo_repository.name + ".id", ondelete="cascade"),
+        ForeignKey(todo_repositories.name + ".id", ondelete="cascade"),
         primary_key=True,
     ),
     Column(
@@ -58,8 +58,8 @@ daily_todo = Table(
     ),
 )
 
-daily_todo_task = Table(
-    "daily_todo_task",
+daily_todo_tasks = Table(
+    "daily_todo_tasks",
     mapper_registry.metadata,
     Column("id", Integer, primary_key=True, autoincrement=True),
     Column(
@@ -83,7 +83,7 @@ daily_todo_task = Table(
     Column("date", postgresql.TIMESTAMP(timezone=True), nullable=False),
     ForeignKeyConstraint(
         ["todo_repository_id", "date"],
-        ["daily_todo.todo_repository_id", "daily_todo.date"],
+        ["daily_todos.todo_repository_id", "daily_todos.date"],
         name="fk_daily_todo_task_daily_todo",
     ),
     Index("fk_daily_todo_task_daily_todo", "todo_repository_id", "date"),
@@ -93,11 +93,11 @@ daily_todo_task = Table(
 def start_mappers():
     mapper_registry.map_imperatively(
         TodoRepository,
-        todo_repository,
+        todo_repositories,
         properties={
             "daily_todos": relationship(
                 DailyTodo,
-                back_populates="todo_repository",
+                back_populates="todo_repositories",
                 cascade="all, delete-orphan",
             )
         },
@@ -105,15 +105,15 @@ def start_mappers():
     )
     mapper_registry.map_imperatively(
         DailyTodo,
-        daily_todo,
+        daily_todos,
         properties={
-            "todo_repository": relationship(
+            "todo_repositories": relationship(
                 TodoRepository,
                 back_populates="daily_todos",
             ),
             "daily_todo_tasks": relationship(
                 DailyTodoTask,
-                back_populates="daily_todo",
+                back_populates="daily_todos",
                 cascade="all, delete-orphan",
             ),
         },
@@ -121,9 +121,9 @@ def start_mappers():
     )
     mapper_registry.map_imperatively(
         DailyTodoTask,
-        daily_todo_task,
+        daily_todo_tasks,
         properties={
-            "daily_todo": relationship(
+            "daily_todos": relationship(
                 DailyTodo,
                 back_populates="daily_todo_tasks",
             ),
