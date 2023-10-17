@@ -9,9 +9,12 @@ class PostgresSettings(BaseSettings):
     POSTGRES_USER: str = ""
     POSTGRES_PASSWORD: str = ""
     POSTGRES_DB: str = ""
-    POSTGRES_TEST_DB: str = f"{POSTGRES_DB}_test_{random.randint(0, 9999)}"
     POSTGRES_PORT: str = ""
     POSTGRES_PROTOCOL: str = ""
+
+    @property
+    def test_db(self) -> str:
+        return f"{self.POSTGRES_DB}_test"
 
     def get_dsn(self) -> str:
         return "{}://{}:{}@{}:{}/{}".format(
@@ -30,7 +33,7 @@ class PostgresSettings(BaseSettings):
             self.POSTGRES_PASSWORD,
             self.POSTGRES_SERVER,
             self.POSTGRES_PORT,
-            self.POSTGRES_TEST_DB,
+            self.test_db,
         )
 
 
