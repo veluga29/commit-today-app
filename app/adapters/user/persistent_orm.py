@@ -1,10 +1,11 @@
-from sqlalchemy import Table, Column, Integer, String, func
+from sqlalchemy import Table, Column, Integer, String, func, MetaData
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.orm import registry
 
 from app.domain.user.models import User
 
-mapper_registry = registry()
+metadata = MetaData()
+mapper_registry = registry(metadata=metadata)
 
 user = Table(
     "user",

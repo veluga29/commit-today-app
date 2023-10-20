@@ -9,17 +9,18 @@ from sqlalchemy import (
     ForeignKey,
     func,
     Boolean,
+    MetaData,
 )
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.orm import registry, relationship
 
-from app.domain.todo.models import TodoRepository, DailyTodo, DailyTodoTask
+from app.domain.todo.models import TodoRepo, DailyTodo, DailyTodoTask
 
+metadata = MetaData()
+mapper_registry = registry(metadata=metadata)
 
-mapper_registry = registry()
-
-todo_repositories = Table(
-    "todo_repositories",
+todo_repos = Table(
+    "todo_repos",
     mapper_registry.metadata,
     Column("id", Integer, primary_key=True, autoincrement=True),
     Column(
@@ -45,8 +46,8 @@ daily_todos = Table(
     "daily_todos",
     mapper_registry.metadata,
     Column(
-        "todo_repository_id",
-        ForeignKey(todo_repositories.name + ".id", ondelete="cascade"),
+        "todo_repo_id",
+        ForeignKey(todo_repos.name + ".id", ondelete="cascade"),
         primary_key=True,
     ),
     Column(
@@ -79,25 +80,25 @@ daily_todo_tasks = Table(
     ),
     Column("content", Text, nullable=False),
     Column("is_completed", Boolean, nullable=False, default=False),
-    Column("todo_repository_id", Integer, nullable=False),
+    Column("todo_repo_id", Integer, nullable=False),
     Column("date", postgresql.TIMESTAMP(timezone=True), nullable=False),
     ForeignKeyConstraint(
-        ["todo_repository_id", "date"],
-        ["daily_todos.todo_repository_id", "daily_todos.date"],
+        ["todo_repo_id", "date"],
+        ["daily_todos.todo_repo_id", "daily_todos.date"],
         name="fk_daily_todo_task_daily_todo",
     ),
-    Index("fk_daily_todo_task_daily_todo", "todo_repository_id", "date"),
+    Index("fk_daily_todo_task_daily_todo", "todo_repo_id", "date"),
 )
 
 
 def start_mappers():
     mapper_registry.map_imperatively(
-        TodoRepository,
-        todo_repositories,
+        TodoRepo,
+        todo_repos,
         properties={
             "daily_todos": relationship(
                 DailyTodo,
-                back_populates="todo_repositories",
+                back_populates="todo_repos",
                 cascade="all, delete-orphan",
             )
         },
@@ -107,8 +108,8 @@ def start_mappers():
         DailyTodo,
         daily_todos,
         properties={
-            "todo_repositories": relationship(
-                TodoRepository,
+            "todo_repos": relationship(
+                TodoRepo,
                 back_populates="daily_todos",
             ),
             "daily_todo_tasks": relationship(
