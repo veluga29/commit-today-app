@@ -40,7 +40,9 @@ async def create_test_db():
         await conn.execute(text(f"DROP DATABASE IF EXISTS {test_db}"))
         await conn.execute(text(f"CREATE DATABASE {test_db}"))
 
-        yield
+    yield
+
+    async with async_engine.begin() as conn:
         await conn.execute(text(f"DROP DATABASE {test_db}"))
 
 
@@ -60,8 +62,9 @@ async def async_engine(mappers):
         await conn.run_sync(user_metadata.create_all)
         await conn.run_sync(todo_metadata.create_all)
 
-        yield async_engine
+    yield async_engine
 
+    async with async_engine.begin() as conn:
         await conn.run_sync(user_metadata.drop_all)
         await conn.run_sync(todo_metadata.drop_all)
 
