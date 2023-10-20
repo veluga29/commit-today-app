@@ -7,7 +7,7 @@ from app.domain.base_models import Base
 
 
 @dataclass
-class TodoRepository(Base):
+class TodoRepo(Base):
     title: str = field(default="")
     description: str = field(default="")
     user_id: int = field(default=0)
@@ -21,7 +21,7 @@ class DailyTodo:
     date: date
 
     # relationships
-    todo_repository_id: int = field(default=0)
+    todo_repo_id: int = field(default=0)
     daily_todo_tasks: list[DailyTodoTask] = field(default_factory=list)
 
 
