@@ -28,6 +28,7 @@ pytest = "*"
 pytest-asyncio = "*"
 pytest-cov = "*"
 pytest-dotenv = "*"
+pytest-env = "*"
 Faker = "*"
 
 [requires]
