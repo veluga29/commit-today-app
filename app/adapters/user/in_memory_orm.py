@@ -12,14 +12,14 @@ user = Table(
     mapper_registry.metadata,
     Column("id", Integer, primary_key=True, autoincrement=True),
     Column(
-        "create_dt",
+        "created_at",
         sqlite.TIMESTAMP(timezone=True),
         default=func.now(),
         server_default=func.now(),
         nullable=False,
     ),
     Column(
-        "update_dt",
+        "updated_at",
         sqlite.TIMESTAMP(timezone=True),
         default=func.now(),
         onupdate=func.current_timestamp(),

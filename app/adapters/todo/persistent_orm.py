@@ -24,14 +24,14 @@ todo_repos = Table(
     mapper_registry.metadata,
     Column("id", Integer, primary_key=True, autoincrement=True),
     Column(
-        "create_dt",
+        "created_at",
         postgresql.TIMESTAMP(timezone=True),
         default=func.now(),
         server_default=func.now(),
         nullable=False,
     ),
     Column(
-        "update_dt",
+        "updated_at",
         postgresql.TIMESTAMP(timezone=True),
         default=func.now(),
         onupdate=func.current_timestamp(),
@@ -40,6 +40,7 @@ todo_repos = Table(
     ),
     Column("title", String(50), nullable=False, default=""),
     Column("description", String(256), nullable=False, default=""),
+    Column("user_id", Integer, nullable=False, index=True),
 )
 
 daily_todos = Table(
@@ -64,14 +65,14 @@ daily_todo_tasks = Table(
     mapper_registry.metadata,
     Column("id", Integer, primary_key=True, autoincrement=True),
     Column(
-        "create_dt",
+        "created_at",
         postgresql.TIMESTAMP(timezone=True),
         default=func.now(),
         server_default=func.now(),
         nullable=False,
     ),
     Column(
-        "update_dt",
+        "updated_at",
         postgresql.TIMESTAMP(timezone=True),
         default=func.now(),
         onupdate=func.current_timestamp(),
