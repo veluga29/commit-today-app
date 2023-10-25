@@ -48,4 +48,5 @@ class SQLiteSettings(BaseSettings):
 POSTGRES_SETTINGS = PostgresSettings()
 SQLITE_SETTINGS = SQLiteSettings()
 
+STAGE = os.environ.get("STAGE", "local")
 API_V1_STR: str = os.environ.get("API_V1_STR", "/api/v1")
