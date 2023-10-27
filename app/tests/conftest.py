@@ -15,11 +15,7 @@ from app.adapters.todo.persistent_orm import start_mappers as todo_start_mappers
 from app.adapters.user.persistent_orm import metadata as user_metadata
 from app.adapters.todo.persistent_orm import metadata as todo_metadata
 from app import settings
-
-
-@pytest_asyncio.fixture
-def client():
-    return TestClient(app)
+from app.db import get_session
 
 
 @pytest.fixture(scope="session")
@@ -86,3 +82,11 @@ async def async_session_factory(async_engine):
 async def async_session(async_session_factory):
     async with async_session_factory() as session:
         yield session
+
+
+@pytest_asyncio.fixture(scope="function")
+def testing_app(async_session):
+    app.dependency_overrides[get_session] = lambda: async_session
+
+    yield app
+    app.dependency_overrides = {}

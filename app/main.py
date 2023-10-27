@@ -12,5 +12,5 @@ app.include_router(api_v1_router)
 
 
 @app.get("/")
-def health_check():
+async def health_check():
     return {"ping": "pong"}
