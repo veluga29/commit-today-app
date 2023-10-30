@@ -9,29 +9,30 @@ from app.service.todo.handlers import TodoRepoService
 from app.adapters.todo.repository import TodoRepoRepository
 
 
-@pytest.mark.asyncio
-async def test_create_todo_repo(async_session: AsyncSession):
-    # GIVEN
-    user_id = random.choice(range(1, 100))
-    title = helpers.fake.word()
-    description = helpers.fake.text()
-
-    # WHEN
-    repository = TodoRepoRepository(async_session)
-    res = await TodoRepoService.create_todo_repo(title, description, user_id, repository=repository)
-    q = await async_session.execute(select(models.TodoRepo).filter_by(id=res["id"]))
-    repo = q.scalar()
-
-    # THEN
-    assert res
-    assert repo
-
-    assert res["id"] == repo.id
-    assert res["created_at"] == repo.created_at
-    assert res["updated_at"] == repo.updated_at
-    assert res["title"] == repo.title
-    assert res["description"] == repo.description
-    assert res["user_id"] == repo.user_id
+class TestTodoRepo:
+    @pytest.mark.asyncio
+    async def test_create_todo_repo(self, async_session: AsyncSession):
+        # GIVEN
+        user_id = random.choice(range(1, 100))
+        title = helpers.fake.word()
+        description = helpers.fake.text()
+    
+        # WHEN
+        repository = TodoRepoRepository(async_session)
+        res = await TodoRepoService.create_todo_repo(title, description, user_id, repository=repository)
+        q = await async_session.execute(select(models.TodoRepo).filter_by(id=res["id"]))
+        repo = q.scalar()
+    
+        # THEN
+        assert res
+        assert repo
+    
+        assert res["id"] == repo.id
+        assert res["created_at"] == repo.created_at
+        assert res["updated_at"] == repo.updated_at
+        assert res["title"] == repo.title
+        assert res["description"] == repo.description
+        assert res["user_id"] == repo.user_id
 
 
 # @pytest.mark.asyncio
