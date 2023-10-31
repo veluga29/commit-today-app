@@ -54,6 +54,11 @@ class TodoRepoRepository(AbstractRepository):
     async def get_todo_repos_by_user_id(self, user_id):
         q = await self.session.execute(select(todo_models.TodoRepo).where(todo_models.TodoRepo.user_id == user_id))
         return q.scalars()
+    
+    async def update_todo_repo(self, todo_repo: todo_models.TodoRepo):
+        self.session.add(todo_repo)
+        await self.session.commit()
+        return todo_repo
 
 
 class DailyTodoRepository(AbstractRepository):

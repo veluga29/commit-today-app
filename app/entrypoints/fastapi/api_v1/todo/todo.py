@@ -1,12 +1,14 @@
-from fastapi import APIRouter, status, Depends
+from fastapi import APIRouter, status, Depends, Path, Body, HTTPException
 from fastapi_restful.cbv import cbv
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.entrypoints.fastapi.api_v1.todo import in_schemas
 from app.entrypoints.fastapi.api_v1.todo import out_schemas
 from app.service.todo.handlers import TodoRepoService
+from app.service import exceptions
 from app.adapters.todo.repository import TodoRepoRepository
 from app.db import get_session
+
 
 router = APIRouter()
 
@@ -22,3 +24,13 @@ class TodoRepo:
         res = await self.todo_service.create_todo_repo(create_in.title, create_in.description, repository=repository)
 
         return out_schemas.TodoRepoCreateOut(**res)
+
+    @router.patch("/todo-repos/{todo_repo_id}", status_code=status.HTTP_200_OK)
+    async def update_todo_repo(self, todo_repo_id: int = Path(...), update_in: in_schemas.TodoRepoUpdateIn = Body(...)) -> out_schemas.TodoRepoUpdateOut:
+        try:
+            repository: TodoRepoRepository = TodoRepoRepository(self.session)
+            res = await self.todo_service.update_todo_repo(todo_repo_id, update_in.title, update_in.description, repository=repository)
+        except exceptions.NotFound:
+            raise HTTPException(status_code=404, detail="Todo Repo not found")
+
+        return out_schemas.TodoRepoUpdateOut(**res)
