@@ -19,3 +19,12 @@ class TodoRepoUpdateOut(BaseModel):
     title: str
     description: str
     user_id: int
+    
+
+class TodoRepoOut(BaseModel):
+    id: int
+    created_at: datetime
+    updated_at: datetime
+    title: str
+    description: str
+    user_id: int

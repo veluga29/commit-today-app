@@ -30,3 +30,9 @@ class TodoRepoService:
         res = await repository.update_todo_repo(todo_repo)
 
         return asdict(res)
+
+    @staticmethod
+    async def get_todo_repos(user_id: int = 0, *, repository: TodoRepoRepository) -> list[dict]:
+        res = await repository.get_todo_repos_by_user_id(user_id)
+
+        return [asdict(r) for r in res]

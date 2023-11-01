@@ -34,3 +34,10 @@ class TodoRepo:
             raise HTTPException(status_code=404, detail="Todo Repo not found")
 
         return out_schemas.TodoRepoUpdateOut(**res)
+    
+    @router.get("/todo-repos", status_code=status.HTTP_200_OK)
+    async def get_todo_repos(self) -> list[out_schemas.TodoRepoOut]:
+        repository: TodoRepoRepository = TodoRepoRepository(self.session)
+        res = await self.todo_service.get_todo_repos(repository=repository)
+
+        return [out_schemas.TodoRepoOut(**r) for r in res]

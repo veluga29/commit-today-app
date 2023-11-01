@@ -75,3 +75,26 @@ class TestTodoRepo:
         with pytest.raises(exceptions.NotFound):
             # THEN
             await TodoRepoService.update_todo_repo(repo_id, title, description, repository=repository)
+        
+    @pytest.mark.asyncio
+    async def test_get_todo_repos(self, async_session: AsyncSession):
+        # GIVEN
+        # user_id = random.choice(range(1, 100))  # TODO
+        repos = helpers.create_todo_repos(n=20)
+        async_session.add_all(repos)
+        await async_session.commit()
+
+        # WHEN
+        repository = TodoRepoRepository(async_session)
+        res_list = await TodoRepoService.get_todo_repos(0, repository=repository)
+
+        # THEN
+        assert res_list
+
+        for repo, res in zip(repos, res_list):
+            assert repo.id == res["id"]
+            assert repo.created_at == res["created_at"]
+            assert repo.updated_at == res["updated_at"]
+            assert repo.title == res["title"]
+            assert repo.description == res["description"]
+            assert repo.user_id == res["user_id"]

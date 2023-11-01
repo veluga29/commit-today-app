@@ -94,3 +94,29 @@ class TestTodoRepo:
 
         # THEN
         assert response.status_code == HTTPStatus.NOT_FOUND
+    
+    @pytest.mark.asyncio
+    async def test_get_todo_repos(self, testing_app, async_session: AsyncSession):
+        # GIVEN
+        # user_id = random.choice(range(1, 100)) # TODO
+        repos = helpers.create_todo_repos(n=20)
+        async_session.add_all(repos)
+        await async_session.commit()
+
+        # WHEN
+        URL = testing_app.url_path_for("get_todo_repos")
+
+        async with AsyncClient(app=testing_app, base_url="http://test") as ac:
+            response = await ac.get(URL)
+
+        # THEN
+        assert response.status_code == HTTPStatus.OK
+        repos_for_test = response.json()
+
+        for repo, repo_for_test in zip(repos, repos_for_test):
+            assert repo.id == repo_for_test["id"]
+            assert repo.created_at == parse(repo_for_test["created_at"])
+            assert repo.updated_at == parse(repo_for_test["updated_at"])
+            assert repo.title == repo_for_test["title"]
+            assert repo.description == repo_for_test["description"]
+            assert repo.user_id == repo_for_test["user_id"]
