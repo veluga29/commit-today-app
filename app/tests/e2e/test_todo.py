@@ -83,7 +83,7 @@ class TestTodoRepo:
     @pytest.mark.asyncio
     async def test_update_todo_repo_if_repo_does_not_exist(self, testing_app):
         # GIVEN
-        repo_id = random.choice(range(0, 100))
+        repo_id = helpers.ID_MAX_LIMIT
         body = {"title": "updated_title", "description": "updated_description"}
 
         # WHEN

@@ -3,6 +3,7 @@ from faker import Faker
 from app.domain.todo import models as todo_models
 
 
+ID_MAX_LIMIT = 100000
 fake = Faker()
 
 

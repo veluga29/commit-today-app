@@ -66,7 +66,7 @@ class TestTodoRepo:
     @pytest.mark.asyncio
     async def test_update_todo_repo_if_repo_does_not_exist(self, async_session: AsyncSession):
         # GIVEN
-        repo_id = random.choice(range(1, 100))
+        repo_id = helpers.ID_MAX_LIMIT
         title = helpers.fake.word()
         description = helpers.fake.text()
 
