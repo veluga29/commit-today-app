@@ -6,7 +6,7 @@ from copy import deepcopy
 
 from app.tests import helpers
 from app.domain.todo import models
-from app.service.todo.handlers import TodoRepoService
+from app.service.todo.handlers import TodoRepoService, DailyTodoService
 from app.service import exceptions
 from app.adapters.todo.repository import TodoRepoRepository
 
@@ -98,3 +98,24 @@ class TestTodoRepo:
             assert repo.title == res["title"]
             assert repo.description == res["description"]
             assert repo.user_id == res["user_id"]
+
+class TestDailyTodo:
+    @pytest.mark.asyncio
+    async def test_create_daily_todo(self, async_session: AsyncSession):
+        # GIVEN
+        repo = helpers.create_todo_repo()
+        async_session.add(repo)
+        await async_session.commit()
+
+        # WHEN
+        repository = TodoRepoRepository(async_session)
+        res = await DailyTodoService.create_daily_todo(repo.id, repository=repository)
+        q = await async_session.execute(select(models.DailyTodo).filter_by(todo_repo_id=repo.id, date=res["date"]))
+        daily_todo = q.scalar()
+
+        # THEN
+        assert res
+        assert daily_todo
+
+        assert res["todo_repo_id"] == daily_todo.todo_repo_id
+        assert res["date"] == daily_todo.date

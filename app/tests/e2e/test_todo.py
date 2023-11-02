@@ -42,7 +42,7 @@ class TestTodoRepo:
         repo = helpers.create_todo_repo(user_id=user_id)
         async_session.add(repo)
         await async_session.commit()
-        
+
         repo_before_update = deepcopy(repo)
 
         body = {"title": "updated_title", "description": "updated_description"}
@@ -94,7 +94,7 @@ class TestTodoRepo:
 
         # THEN
         assert response.status_code == HTTPStatus.NOT_FOUND
-    
+
     @pytest.mark.asyncio
     async def test_get_todo_repos(self, testing_app, async_session: AsyncSession):
         # GIVEN
@@ -120,3 +120,25 @@ class TestTodoRepo:
             assert repo.title == repo_for_test["title"]
             assert repo.description == repo_for_test["description"]
             assert repo.user_id == repo_for_test["user_id"]
+
+
+class TestDailyTodo:
+    @pytest.mark.asyncio
+    async def test_create_daily_todo(self, testing_app, async_session: AsyncSession):
+        # GIVEN
+        repo = helpers.create_todo_repo()
+        async_session.add(repo)
+        await async_session.commit()
+
+        # WHEN
+        URL = testing_app.url_path_for("create_daily_todo", todo_repo_id=repo.id)
+
+        async with AsyncClient(app=testing_app, base_url="http://test") as ac:
+            response = await ac.post(URL)
+
+        # THEN
+        assert response.status_code == HTTPStatus.CREATED
+        repo_for_test = response.json()
+
+        assert repo_for_test["todo_repo_id"]
+        assert repo_for_test["date"]
