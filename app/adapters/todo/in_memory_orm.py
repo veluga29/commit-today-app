@@ -10,6 +10,7 @@ from sqlalchemy import (
     func,
     Boolean,
     MetaData,
+    Date,
 )
 from sqlalchemy.dialects import sqlite
 from sqlalchemy.orm import registry, relationship
@@ -47,18 +48,8 @@ todo_repos = Table(
 daily_todos = Table(
     "daily_todos",
     mapper_registry.metadata,
-    Column(
-        "todo_repo_id",
-        ForeignKey(todo_repos.name + ".id", ondelete="cascade"),
-        primary_key=True,
-    ),
-    Column(
-        "date",
-        sqlite.TIMESTAMP(timezone=True),
-        primary_key=True,
-        default=func.now(),
-        server_default=func.now(),
-    ),
+    Column("todo_repo_id", ForeignKey(todo_repos.name + ".id", ondelete="cascade"), primary_key=True),
+    Column("date", Date, primary_key=True),
 )
 
 daily_todo_tasks = Table(
@@ -100,7 +91,7 @@ def start_mappers():
         properties={
             "daily_todos": relationship(
                 DailyTodo,
-                back_populates="todo_repos",
+                back_populates="todo_repo",
                 cascade="all, delete-orphan",
             )
         },
@@ -110,13 +101,13 @@ def start_mappers():
         DailyTodo,
         daily_todos,
         properties={
-            "todo_repos": relationship(
+            "todo_repo": relationship(
                 TodoRepo,
                 back_populates="daily_todos",
             ),
             "daily_todo_tasks": relationship(
                 DailyTodoTask,
-                back_populates="daily_todos",
+                back_populates="daily_todo",
                 cascade="all, delete-orphan",
             ),
         },
@@ -126,7 +117,7 @@ def start_mappers():
         DailyTodoTask,
         daily_todo_tasks,
         properties={
-            "daily_todos": relationship(
+            "daily_todo": relationship(
                 DailyTodo,
                 back_populates="daily_todo_tasks",
             ),

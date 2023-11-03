@@ -18,10 +18,11 @@ class TodoRepo(Base):
 
 @dataclass
 class DailyTodo:
-    date: date
+    todo_repo_id: int = field(default=0)
+    date: date = field(default=date.today())
 
     # relationships
-    todo_repo_id: int = field(default=0)
+    todo_repo: TodoRepo = field(init=False)
     daily_todo_tasks: list[DailyTodoTask] = field(default_factory=list)
 
 
@@ -29,6 +30,7 @@ class DailyTodo:
 class DailyTodoTask(Base):
     content: str = field(default="")
     is_completed: bool = field(default=False)
+    daily_todo_id: int = field(default=0)
 
     # relationships
-    daily_todo_id: int = field(default=0)
+    daily_todo: DailyTodo = field(init=False)
