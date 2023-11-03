@@ -129,12 +129,14 @@ class TestDailyTodo:
         repo = helpers.create_todo_repo()
         async_session.add(repo)
         await async_session.commit()
+        
+        body = {"date": helpers.fake.date()}
 
         # WHEN
         URL = testing_app.url_path_for("create_daily_todo", todo_repo_id=repo.id)
 
         async with AsyncClient(app=testing_app, base_url="http://test") as ac:
-            response = await ac.post(URL)
+            response = await ac.post(URL, json=body)
 
         # THEN
         assert response.status_code == HTTPStatus.CREATED
@@ -142,3 +144,40 @@ class TestDailyTodo:
 
         assert repo_for_test["todo_repo_id"]
         assert repo_for_test["date"]
+
+    @pytest.mark.asyncio
+    async def test_create_daily_todo_if_todo_repo_does_not_exist(self, testing_app):
+        # GIVEN
+        todo_repo_id = helpers.ID_MAX_LIMIT
+        body = {"date": helpers.fake.date()}
+
+        # WHEN
+        URL = testing_app.url_path_for("create_daily_todo", todo_repo_id=todo_repo_id)
+
+        async with AsyncClient(app=testing_app, base_url="http://test") as ac:
+            response = await ac.post(URL, json=body)
+
+        # THEN
+        assert response.status_code == HTTPStatus.NOT_FOUND
+
+    @pytest.mark.asyncio
+    async def test_create_daily_todo_if_daily_todo_already_exists(self, testing_app, async_session: AsyncSession):
+        # GIVEN
+        date = helpers.fake.date()
+        body = {"date": date}
+        
+        todo_repo = helpers.create_todo_repo()
+        async_session.add(todo_repo)
+        await async_session.commit()
+        daily_todo = helpers.create_daily_todo(todo_repo_id=todo_repo.id, date=helpers.str_to_date(date))
+        async_session.add(daily_todo)
+        await async_session.commit()
+
+        # WHEN
+        URL = testing_app.url_path_for("create_daily_todo", todo_repo_id=todo_repo.id)
+
+        async with AsyncClient(app=testing_app, base_url="http://test") as ac:
+            response = await ac.post(URL, json=body)
+
+        # THEN
+        assert response.status_code == HTTPStatus.BAD_REQUEST

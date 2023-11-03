@@ -1,7 +1,8 @@
+import datetime
 from dataclasses import asdict
 
 from app.domain.todo import models as todo_models
-from app.adapters.todo.repository import TodoRepoRepository
+from app.adapters.todo.repository import TodoRepoRepository, DailyTodoRepository
 from app.service import exceptions
 
 
@@ -36,3 +37,21 @@ class TodoRepoService:
         res = await repository.get_todo_repos_by_user_id(user_id)
 
         return [asdict(r) for r in res]
+
+
+class DailyTodoService:
+    @staticmethod
+    async def create_daily_todo(
+        todo_repo_id: int, date: datetime.date, *, todo_repo_repository: TodoRepoRepository, daily_todo_repository: DailyTodoRepository
+    ) -> dict:
+        if (todo_repo := await todo_repo_repository.get(todo_repo_id)) is None:
+            raise exceptions.NotFound(f"TodoRepo with id {todo_repo_id} not found")
+        if await daily_todo_repository.get(todo_repo_id, date):
+            raise exceptions.AlreadyExists(f"DailyTodo with id ({todo_repo_id}, {date}) already exists")
+        
+        daily_todo = todo_models.DailyTodo(todo_repo_id=todo_repo_id, date=date)
+        daily_todo.todo_repo = todo_repo
+        
+        await daily_todo_repository.create_daily_todo(daily_todo)
+
+        return daily_todo.dict()
