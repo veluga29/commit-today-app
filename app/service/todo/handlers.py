@@ -1,5 +1,4 @@
 import datetime
-from dataclasses import asdict
 
 from app.domain.todo import models as todo_models
 from app.adapters.todo.repository import TodoRepoRepository, DailyTodoRepository
@@ -14,7 +13,7 @@ class TodoRepoService:
         todo_repo = todo_models.TodoRepo(title=title, description=description, user_id=user_id)
         res = await repository.create_todo_repo(todo_repo)
 
-        return asdict(res)
+        return res.dict()
 
     @staticmethod
     async def update_todo_repo(
@@ -30,13 +29,13 @@ class TodoRepoService:
 
         res = await repository.update_todo_repo(todo_repo)
 
-        return asdict(res)
+        return res.dict()
 
     @staticmethod
     async def get_todo_repos(user_id: int = 0, *, repository: TodoRepoRepository) -> list[dict]:
         res = await repository.get_todo_repos_by_user_id(user_id)
 
-        return [asdict(r) for r in res]
+        return [r.dict() for r in res]
 
 
 class DailyTodoService:
