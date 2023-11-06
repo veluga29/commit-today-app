@@ -7,8 +7,8 @@ from app.domain.user.models import User
 metadata = MetaData()
 mapper_registry = registry(metadata=metadata)
 
-user = Table(
-    "user",
+users = Table(
+    "users",
     mapper_registry.metadata,
     Column("id", Integer, primary_key=True, autoincrement=True),
     Column(
@@ -34,4 +34,4 @@ user = Table(
 
 
 def start_mappers():
-    mapper_registry.map_imperatively(User, user)
+    mapper_registry.map_imperatively(User, users)
