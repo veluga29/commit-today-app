@@ -85,3 +85,10 @@ class DailyTodoRepository(AbstractRepository):
         self.session.add(daily_todo)
         await self.session.commit()
         return daily_todo
+    
+    async def update_daily_todo(self):
+        return await self._update_daily_todo()
+    
+    async def _update_daily_todo(self):
+        await self.session.commit()
+

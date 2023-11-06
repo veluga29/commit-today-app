@@ -125,7 +125,7 @@ class TestDailyTodo:
 
         assert res["todo_repo_id"] == daily_todo.todo_repo_id
         assert res["date"] == daily_todo.date
-    
+
     @pytest.mark.asyncio
     async def test_create_daily_todo_if_todo_repo_does_not_exist(self, async_session: AsyncSession):
         # GIVEN
@@ -138,7 +138,10 @@ class TestDailyTodo:
         with pytest.raises(exceptions.NotFound):
             # THEN
             await DailyTodoService.create_daily_todo(
-                todo_repo_id, date, todo_repo_repository=todo_repo_repository, daily_todo_repository=daily_todo_repository
+                todo_repo_id,
+                date,
+                todo_repo_repository=todo_repo_repository,
+                daily_todo_repository=daily_todo_repository,
             )
 
     @pytest.mark.asyncio
@@ -157,9 +160,12 @@ class TestDailyTodo:
         with pytest.raises(exceptions.AlreadyExists):
             # THEN
             await DailyTodoService.create_daily_todo(
-                todo_repo.id, date, todo_repo_repository=todo_repo_repository, daily_todo_repository=daily_todo_repository
+                todo_repo.id,
+                date,
+                todo_repo_repository=todo_repo_repository,
+                daily_todo_repository=daily_todo_repository,
             )
-    
+
     @pytest.mark.asyncio
     async def test_get_daily_todo(self, async_session: AsyncSession):
         # GIVEN
@@ -179,3 +185,33 @@ class TestDailyTodo:
         assert daily_todo.todo_repo_id == res["todo_repo_id"]
         assert daily_todo.date == res["date"]
 
+    @pytest.mark.asyncio
+    async def test_create_daily_todo_task(self, async_session: AsyncSession):
+        # GIVEN
+        date = helpers.get_random_date()
+        todo_repo = helpers.create_todo_repo()
+        daily_todo = helpers.create_daily_todo(todo_repo=todo_repo, date=date)
+        async_session.add_all([todo_repo, daily_todo])
+        await async_session.commit()
+
+        content = helpers.fake.text()
+
+        # WHEN
+        repository = DailyTodoRepository(async_session)
+        res = await DailyTodoService.create_daily_todo_task(
+            daily_todo.todo_repo_id, daily_todo.date, content, repository=repository
+        )
+        q = await async_session.execute(select(models.DailyTodoTask).filter_by(id=res["id"]))
+        daily_todo_task = q.scalar()
+
+        # THEN
+        assert res
+        assert daily_todo_task
+        
+        assert res["id"] == daily_todo_task.id
+        assert res["created_at"] == daily_todo_task.created_at
+        assert res["updated_at"] == daily_todo_task.updated_at
+        assert res["content"] == daily_todo_task.content
+        assert res["is_completed"] == daily_todo_task.is_completed
+        assert res["todo_repo_id"] == daily_todo_task.todo_repo_id
+        assert res["date"] == daily_todo_task.date

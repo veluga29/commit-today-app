@@ -129,7 +129,7 @@ class TestDailyTodo:
         repo = helpers.create_todo_repo()
         async_session.add(repo)
         await async_session.commit()
-        
+
         body = {"date": helpers.fake.date()}
 
         # WHEN
@@ -165,7 +165,7 @@ class TestDailyTodo:
         # GIVEN
         date = helpers.fake.date()
         body = {"date": date}
-        
+
         todo_repo = helpers.create_todo_repo()
         daily_todo = helpers.create_daily_todo(todo_repo=todo_repo, date=helpers.str_to_date(date))
         async_session.add_all([todo_repo, daily_todo])
@@ -179,7 +179,7 @@ class TestDailyTodo:
 
         # THEN
         assert response.status_code == HTTPStatus.BAD_REQUEST
-    
+
     @pytest.mark.asyncio
     async def test_get_daily_todo(self, testing_app, async_session: AsyncSession):
         # GIVEN
@@ -201,3 +201,32 @@ class TestDailyTodo:
 
         assert daily_todo.todo_repo_id == repo_for_test["todo_repo_id"]
         assert daily_todo.date == parse(repo_for_test["date"]).date()
+
+    @pytest.mark.asyncio
+    async def test_create_daily_todo_task(self, testing_app, async_session: AsyncSession):
+        date = helpers.get_random_date()
+        todo_repo = helpers.create_todo_repo()
+        daily_todo = helpers.create_daily_todo(todo_repo=todo_repo, date=date)
+        async_session.add_all([todo_repo, daily_todo])
+        await async_session.commit()
+
+        content = helpers.fake.text()
+        body = {"content": content}
+
+        # WHEN
+        URL = testing_app.url_path_for("create_daily_todo_task", todo_repo_id=todo_repo.id, date=date)
+
+        async with AsyncClient(app=testing_app, base_url="http://test") as ac:
+            response = await ac.post(URL, json=body)
+
+        # THEN
+        assert response.status_code == HTTPStatus.CREATED
+        repo_for_test = response.json()
+
+        assert repo_for_test["id"]
+        assert repo_for_test["created_at"]
+        assert repo_for_test["updated_at"]
+        assert repo_for_test["content"] == content
+        assert repo_for_test["is_completed"] is False
+        assert repo_for_test["todo_repo_id"] == daily_todo.todo_repo_id
+        assert parse(repo_for_test["date"]).date() == daily_todo.date
