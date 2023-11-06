@@ -207,7 +207,7 @@ class TestDailyTodo:
         # THEN
         assert res
         assert daily_todo_task
-        
+
         assert res["id"] == daily_todo_task.id
         assert res["created_at"] == daily_todo_task.created_at
         assert res["updated_at"] == daily_todo_task.updated_at
@@ -215,7 +215,21 @@ class TestDailyTodo:
         assert res["is_completed"] == daily_todo_task.is_completed
         assert res["todo_repo_id"] == daily_todo_task.todo_repo_id
         assert res["date"] == daily_todo_task.date
-        
+
+    @pytest.mark.asyncio
+    async def test_create_daily_todo_task_if_there_is_no_daily_todo(self, async_session: AsyncSession):
+        # GIVEN
+        date = helpers.get_random_date()
+        todo_repo_id = helpers.ID_MAX_LIMIT
+
+        content = helpers.fake.text()
+
+        # WHEN
+        repository = DailyTodoRepository(async_session)
+        with pytest.raises(exceptions.NotFound):
+            # THEN
+            await DailyTodoService.create_daily_todo_task(todo_repo_id, date, content, repository=repository)
+
     @pytest.mark.asyncio
     async def test_get_daily_todo_tasks(self, async_session: AsyncSession):
         # GIVEN
@@ -234,7 +248,7 @@ class TestDailyTodo:
 
         # THEN
         assert res_list
-        
+
         for daily_todo_task, res in zip(daily_todo_tasks, res_list):
             assert daily_todo_task.id == res["id"]
             assert daily_todo_task.created_at == res["created_at"]
@@ -243,7 +257,7 @@ class TestDailyTodo:
             assert daily_todo_task.is_completed == res["is_completed"]
             assert daily_todo_task.todo_repo_id == res["todo_repo_id"]
             assert daily_todo_task.date == res["date"]
-    
+
     @pytest.mark.asyncio
     async def test_get_daily_todo_tasks_if_there_are_no_tasks(self, async_session: AsyncSession):
         # GIVEN
@@ -252,9 +266,7 @@ class TestDailyTodo:
 
         # WHEN
         repository = DailyTodoRepository(async_session)
-        res_list = await DailyTodoService.get_daily_todo_tasks(
-            todo_repo_id, date, repository=repository
-        )
+        res_list = await DailyTodoService.get_daily_todo_tasks(todo_repo_id, date, repository=repository)
 
         # THEN
         assert res_list == []

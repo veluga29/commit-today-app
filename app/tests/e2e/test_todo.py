@@ -230,6 +230,22 @@ class TestDailyTodo:
         assert daily_todo_task_for_test["is_completed"] is False
         assert daily_todo_task_for_test["todo_repo_id"] == daily_todo.todo_repo_id
         assert parse(daily_todo_task_for_test["date"]).date() == daily_todo.date
+    
+    @pytest.mark.asyncio
+    async def test_create_daily_todo_task_if_there_is_no_daily_todo(self, testing_app, async_session: AsyncSession):
+        date = helpers.get_random_date()
+        todo_repo_id = helpers.ID_MAX_LIMIT
+        content = helpers.fake.text()
+        body = {"content": content}
+
+        # WHEN
+        URL = testing_app.url_path_for("create_daily_todo_task", todo_repo_id=todo_repo_id, date=date)
+
+        async with AsyncClient(app=testing_app, base_url="http://test") as ac:
+            response = await ac.post(URL, json=body)
+
+        # THEN
+        assert response.status_code == HTTPStatus.NOT_FOUND
 
     @pytest.mark.asyncio
     async def test_get_daily_todo_tasks(self, testing_app, async_session: AsyncSession):
