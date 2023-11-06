@@ -41,47 +41,49 @@ class TodoRepoService:
 class DailyTodoService:
     @staticmethod
     async def create_daily_todo(
-        todo_repo_id: int, date: datetime.date, *, todo_repo_repository: TodoRepoRepository, daily_todo_repository: DailyTodoRepository
+        todo_repo_id: int,
+        date: datetime.date,
+        *,
+        todo_repo_repository: TodoRepoRepository,
+        daily_todo_repository: DailyTodoRepository,
     ) -> dict:
         if (todo_repo := await todo_repo_repository.get(todo_repo_id)) is None:
             raise exceptions.NotFound(f"TodoRepo with id {todo_repo_id} not found")
         if await daily_todo_repository.get(todo_repo_id, date):
             raise exceptions.AlreadyExists(f"DailyTodo with id ({todo_repo_id}, {date}) already exists")
-        
+
         daily_todo = todo_models.DailyTodo(date=date)
         daily_todo.todo_repo = todo_repo
-        
+
         await daily_todo_repository.create_daily_todo(daily_todo)
 
         return daily_todo.dict()
-    
+
     @staticmethod
-    async def get_daily_todo(
-        todo_repo_id: int, date: datetime.date, *, repository: DailyTodoRepository
-    ) -> dict:
+    async def get_daily_todo(todo_repo_id: int, date: datetime.date, *, repository: DailyTodoRepository) -> dict:
         if (daily_todo := await repository.get(todo_repo_id, date)) is None:
             raise exceptions.NotFound(f"DailyTodo with id ({todo_repo_id}, {date}) not found")
 
         return daily_todo.dict()
-    
+
     @staticmethod
     async def create_daily_todo_task(
         todo_repo_id: int, date: datetime.date, content: str, *, repository: DailyTodoRepository
     ) -> dict:
         if (daily_todo := await repository.get(todo_repo_id, date)) is None:
             raise exceptions.NotFound(f"DailyTodo with id ({todo_repo_id}, {date}) not found")
-        
+
         daily_todo_task = todo_models.DailyTodoTask(content=content)
         daily_todo.daily_todo_tasks.append(daily_todo_task)
-        
+
         await repository.update_daily_todo()
 
         return daily_todo_task.dict()
-    
+
     @staticmethod
     async def get_daily_todo_tasks(
         todo_repo_id: int, date: datetime.date, *, repository: DailyTodoRepository
     ) -> list[dict]:
-        daily_todo = await repository.get(todo_repo_id, date)
+        daily_todo: todo_models.DailyTodo = await repository.get(todo_repo_id, date)
 
         return [t.dict() for t in daily_todo.daily_todo_tasks] if daily_todo else []
