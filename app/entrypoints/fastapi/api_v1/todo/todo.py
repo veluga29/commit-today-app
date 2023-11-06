@@ -56,7 +56,7 @@ class DailyTodo:
     @router.post("/todo-repos/{todo_repo_id}/daily-todos", status_code=status.HTTP_201_CREATED)
     async def create_daily_todo(
         self, todo_repo_id: int = Path(), date: datetime.date = Body(embed=True)
-    ) -> out_schemas.DailyTodoCreateOut:
+    ) -> out_schemas.DailyTodoOut:
         try:
             todo_repo_repository: TodoRepoRepository = TodoRepoRepository(self.session)
             daily_todo_repository: DailyTodoRepository = DailyTodoRepository(self.session)
@@ -71,4 +71,4 @@ class DailyTodo:
         except exceptions.AlreadyExists:
             raise HTTPException(status_code=400, detail="DailyTodo already exists")
 
-        return out_schemas.DailyTodoCreateOut(**res)
+        return out_schemas.DailyTodoOut(**res)

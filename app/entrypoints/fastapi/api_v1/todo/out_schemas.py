@@ -30,6 +30,6 @@ class TodoRepoOut(BaseModel):
     user_id: int
 
 
-class DailyTodoCreateOut(BaseModel):
+class DailyTodoOut(BaseModel):
     date: date
     todo_repo_id: int
