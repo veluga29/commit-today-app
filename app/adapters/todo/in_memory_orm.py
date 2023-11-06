@@ -74,7 +74,7 @@ daily_todo_tasks = Table(
     Column("content", Text, nullable=False),
     Column("is_completed", Boolean, nullable=False, default=False),
     Column("todo_repo_id", Integer, nullable=False),
-    Column("date", sqlite.TIMESTAMP(timezone=True), nullable=False),
+    Column("date", Date, nullable=False),
     ForeignKeyConstraint(
         ["todo_repo_id", "date"],
         ["daily_todos.todo_repo_id", "daily_todos.date"],
