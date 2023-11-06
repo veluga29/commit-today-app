@@ -72,7 +72,7 @@ class DailyTodoRepository(AbstractRepository):
 
     async def _get(self, todo_repo_id, date):
         q = await self.session.execute(
-            select(todo_models.TodoRepo).where(
+            select(todo_models.DailyTodo).where(
                 todo_models.DailyTodo.todo_repo_id == todo_repo_id, todo_models.DailyTodo.date == date
             )
         )
