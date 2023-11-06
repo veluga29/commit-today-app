@@ -20,16 +20,16 @@ class TodoRepo:
     todo_service: TodoRepoService = Depends()
 
     @router.post("/todo-repos", status_code=status.HTTP_201_CREATED)
-    async def create_todo_repo(self, create_in: in_schemas.TodoRepoCreateIn) -> out_schemas.TodoRepoCreateOut:
+    async def create_todo_repo(self, create_in: in_schemas.TodoRepoCreateIn) -> out_schemas.TodoRepoOut:
         repository: TodoRepoRepository = TodoRepoRepository(self.session)
         res = await self.todo_service.create_todo_repo(create_in.title, create_in.description, repository=repository)
 
-        return out_schemas.TodoRepoCreateOut(**res)
+        return out_schemas.TodoRepoOut(**res)
 
     @router.patch("/todo-repos/{todo_repo_id}", status_code=status.HTTP_200_OK)
     async def update_todo_repo(
         self, todo_repo_id: int = Path(...), update_in: in_schemas.TodoRepoUpdateIn = Body(...)
-    ) -> out_schemas.TodoRepoUpdateOut:
+    ) -> out_schemas.TodoRepoOut:
         try:
             repository: TodoRepoRepository = TodoRepoRepository(self.session)
             res = await self.todo_service.update_todo_repo(
@@ -38,7 +38,7 @@ class TodoRepo:
         except exceptions.NotFound:
             raise HTTPException(status_code=404, detail="Todo Repo not found")
 
-        return out_schemas.TodoRepoUpdateOut(**res)
+        return out_schemas.TodoRepoOut(**res)
 
     @router.get("/todo-repos", status_code=status.HTTP_200_OK)
     async def get_todo_repos(self) -> list[out_schemas.TodoRepoOut]:
