@@ -221,12 +221,12 @@ class TestDailyTodo:
 
         # THEN
         assert response.status_code == HTTPStatus.CREATED
-        repo_for_test = response.json()
+        daily_todo_task_for_test = response.json()
 
-        assert repo_for_test["id"]
-        assert repo_for_test["created_at"]
-        assert repo_for_test["updated_at"]
-        assert repo_for_test["content"] == content
-        assert repo_for_test["is_completed"] is False
-        assert repo_for_test["todo_repo_id"] == daily_todo.todo_repo_id
-        assert parse(repo_for_test["date"]).date() == daily_todo.date
+        assert daily_todo_task_for_test["id"]
+        assert daily_todo_task_for_test["created_at"]
+        assert daily_todo_task_for_test["updated_at"]
+        assert daily_todo_task_for_test["content"] == content
+        assert daily_todo_task_for_test["is_completed"] is False
+        assert daily_todo_task_for_test["todo_repo_id"] == daily_todo.todo_repo_id
+        assert parse(daily_todo_task_for_test["date"]).date() == daily_todo.date
