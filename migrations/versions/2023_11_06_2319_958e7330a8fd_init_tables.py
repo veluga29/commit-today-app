@@ -1,8 +1,8 @@
 """Init tables
 
-Revision ID: 20d12a874bc5
+Revision ID: 958e7330a8fd
 Revises: 
-Create Date: 2023-11-06 22:26:37.044821
+Create Date: 2023-11-06 23:19:42.621756
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision = '20d12a874bc5'
+revision = '958e7330a8fd'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -51,7 +51,7 @@ def upgrade() -> None:
     sa.Column('content', sa.Text(), nullable=False),
     sa.Column('is_completed', sa.Boolean(), nullable=False),
     sa.Column('todo_repo_id', sa.Integer(), nullable=False),
-    sa.Column('date', postgresql.TIMESTAMP(timezone=True), nullable=False),
+    sa.Column('date', sa.Date(), nullable=False),
     sa.ForeignKeyConstraint(['todo_repo_id', 'date'], ['daily_todos.todo_repo_id', 'daily_todos.date'], name='fk_daily_todo_task_daily_todo'),
     sa.PrimaryKeyConstraint('id')
     )
