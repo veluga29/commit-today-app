@@ -179,3 +179,25 @@ class TestDailyTodo:
 
         # THEN
         assert response.status_code == HTTPStatus.BAD_REQUEST
+    
+    @pytest.mark.asyncio
+    async def test_get_daily_todo(self, testing_app, async_session: AsyncSession):
+        # GIVEN
+        date = helpers.get_random_date()
+        todo_repo = helpers.create_todo_repo()
+        daily_todo = helpers.create_daily_todo(todo_repo=todo_repo, date=date)
+        async_session.add_all([todo_repo, daily_todo])
+        await async_session.commit()
+
+        # WHEN
+        URL = testing_app.url_path_for("get_daily_todo", todo_repo_id=todo_repo.id, date=date)
+
+        async with AsyncClient(app=testing_app, base_url="http://test") as ac:
+            response = await ac.get(URL)
+
+        # THEN
+        assert response.status_code == HTTPStatus.OK
+        repo_for_test = response.json()
+
+        assert daily_todo.todo_repo_id == repo_for_test["todo_repo_id"]
+        assert daily_todo.date == parse(repo_for_test["date"]).date()

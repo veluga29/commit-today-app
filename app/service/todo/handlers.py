@@ -54,3 +54,12 @@ class DailyTodoService:
         await daily_todo_repository.create_daily_todo(daily_todo)
 
         return daily_todo.dict()
+    
+    @staticmethod
+    async def get_daily_todo(
+        todo_repo_id: int, date: datetime.date, *, repository: DailyTodoRepository
+    ) -> dict:
+        if (daily_todo := await repository.get(todo_repo_id, date)) is None:
+            raise exceptions.NotFound(f"DailyTodo with id ({todo_repo_id}, {date}) not found")
+
+        return daily_todo.dict()

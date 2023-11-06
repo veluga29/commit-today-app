@@ -72,3 +72,19 @@ class DailyTodo:
             raise HTTPException(status_code=400, detail="DailyTodo already exists")
 
         return out_schemas.DailyTodoOut(**res)
+
+    @router.get("/todo-repos/{todo_repo_id}/daily-todos/{date}", status_code=status.HTTP_200_OK)
+    async def get_daily_todo(
+        self, todo_repo_id: int = Path(), date: datetime.date = Path()
+    ) -> out_schemas.DailyTodoOut:
+        try:
+            repository: DailyTodoRepository = DailyTodoRepository(self.session)
+            res = await self.daily_todo_service.get_daily_todo(
+                todo_repo_id=todo_repo_id,
+                date=date,
+                repository=repository,
+            )
+        except exceptions.NotFound:
+            raise HTTPException(status_code=404, detail="DailyTodo not found")
+
+        return out_schemas.DailyTodoOut(**res)
