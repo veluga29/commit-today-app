@@ -103,3 +103,14 @@ class DailyTodo:
             raise HTTPException(status_code=404, detail="DailyTodo not found")
 
         return out_schemas.DailyTodoTaskOut(**res)
+    
+    @router.get("/todo-repos/{todo_repo_id}/daily-todos/{date}/daily-todo-tasks", status_code=status.HTTP_200_OK)
+    async def get_daily_todo_tasks(self, todo_repo_id: int = Path(), date: datetime.date = Path()) -> list[out_schemas.DailyTodoTaskOut]:
+        repository: DailyTodoRepository = DailyTodoRepository(self.session)
+        res = await self.daily_todo_service.get_daily_todo_tasks(
+            todo_repo_id=todo_repo_id,
+            date=date,
+            repository=repository,
+        )
+
+        return [out_schemas.DailyTodoTaskOut(**r) for r in res]

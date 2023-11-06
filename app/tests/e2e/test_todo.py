@@ -230,3 +230,50 @@ class TestDailyTodo:
         assert daily_todo_task_for_test["is_completed"] is False
         assert daily_todo_task_for_test["todo_repo_id"] == daily_todo.todo_repo_id
         assert parse(daily_todo_task_for_test["date"]).date() == daily_todo.date
+
+    @pytest.mark.asyncio
+    async def test_get_daily_todo_tasks(self, testing_app, async_session: AsyncSession):
+        # GIVEN
+        date = helpers.get_random_date()
+        todo_repo = helpers.create_todo_repo()
+        daily_todo = helpers.create_daily_todo(todo_repo=todo_repo, date=date)
+        daily_todo_tasks = helpers.create_daily_todo_tasks(daily_todo=daily_todo)
+        async_session.add_all([todo_repo, daily_todo])
+        await async_session.commit()
+
+        # WHEN
+        URL = testing_app.url_path_for("get_daily_todo_tasks", todo_repo_id=todo_repo.id, date=date)
+
+        async with AsyncClient(app=testing_app, base_url="http://test") as ac:
+            response = await ac.get(URL)
+
+        # THEN
+        assert response.status_code == HTTPStatus.OK
+        daily_todo_tasks_for_test = response.json()
+
+        for daily_todo_task, daily_todo_task_for_test in zip(daily_todo_tasks, daily_todo_tasks_for_test):
+            assert daily_todo_task.id == daily_todo_task_for_test["id"]
+            assert daily_todo_task.created_at == parse(daily_todo_task_for_test["created_at"])
+            assert daily_todo_task.updated_at == parse(daily_todo_task_for_test["updated_at"])
+            assert daily_todo_task.content == daily_todo_task_for_test["content"]
+            assert daily_todo_task.is_completed == daily_todo_task_for_test["is_completed"]
+            assert daily_todo_task.todo_repo_id == daily_todo_task_for_test["todo_repo_id"]
+            assert daily_todo_task.date == parse(daily_todo_task_for_test["date"]).date()
+
+    @pytest.mark.asyncio
+    async def test_get_daily_todo_tasks_if_there_are_no_tasks(self, testing_app):
+        # GIVEN
+        todo_repo_id = helpers.ID_MAX_LIMIT
+        date = helpers.get_random_date()
+
+        # WHEN
+        URL = testing_app.url_path_for("get_daily_todo_tasks", todo_repo_id=todo_repo_id, date=date)
+
+        async with AsyncClient(app=testing_app, base_url="http://test") as ac:
+            response = await ac.get(URL)
+
+        # THEN
+        assert response.status_code == HTTPStatus.OK
+        daily_todo_tasks_for_test = response.json()
+
+        assert daily_todo_tasks_for_test == []

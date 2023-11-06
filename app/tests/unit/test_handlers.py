@@ -215,3 +215,46 @@ class TestDailyTodo:
         assert res["is_completed"] == daily_todo_task.is_completed
         assert res["todo_repo_id"] == daily_todo_task.todo_repo_id
         assert res["date"] == daily_todo_task.date
+        
+    @pytest.mark.asyncio
+    async def test_get_daily_todo_tasks(self, async_session: AsyncSession):
+        # GIVEN
+        date = helpers.get_random_date()
+        todo_repo = helpers.create_todo_repo()
+        daily_todo = helpers.create_daily_todo(todo_repo=todo_repo, date=date)
+        daily_todo_tasks = helpers.create_daily_todo_tasks(daily_todo=daily_todo)
+        async_session.add_all([todo_repo, daily_todo])
+        await async_session.commit()
+
+        # WHEN
+        repository = DailyTodoRepository(async_session)
+        res_list = await DailyTodoService.get_daily_todo_tasks(
+            daily_todo.todo_repo_id, daily_todo.date, repository=repository
+        )
+
+        # THEN
+        assert res_list
+        
+        for daily_todo_task, res in zip(daily_todo_tasks, res_list):
+            assert daily_todo_task.id == res["id"]
+            assert daily_todo_task.created_at == res["created_at"]
+            assert daily_todo_task.updated_at == res["updated_at"]
+            assert daily_todo_task.content == res["content"]
+            assert daily_todo_task.is_completed == res["is_completed"]
+            assert daily_todo_task.todo_repo_id == res["todo_repo_id"]
+            assert daily_todo_task.date == res["date"]
+    
+    @pytest.mark.asyncio
+    async def test_get_daily_todo_tasks_if_there_are_no_tasks(self, async_session: AsyncSession):
+        # GIVEN
+        todo_repo_id = helpers.ID_MAX_LIMIT
+        date = helpers.get_random_date()
+
+        # WHEN
+        repository = DailyTodoRepository(async_session)
+        res_list = await DailyTodoService.get_daily_todo_tasks(
+            todo_repo_id, date, repository=repository
+        )
+
+        # THEN
+        assert res_list == []

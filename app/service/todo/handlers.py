@@ -77,3 +77,11 @@ class DailyTodoService:
         await repository.update_daily_todo()
 
         return daily_todo_task.dict()
+    
+    @staticmethod
+    async def get_daily_todo_tasks(
+        todo_repo_id: int, date: datetime.date, *, repository: DailyTodoRepository
+    ) -> list[dict]:
+        daily_todo = await repository.get(todo_repo_id, date)
+
+        return [t.dict() for t in daily_todo.daily_todo_tasks] if daily_todo else []

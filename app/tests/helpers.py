@@ -31,6 +31,20 @@ def create_daily_todo(todo_repo: todo_models.TodoRepo, date: datetime.date = dat
     return daily_todo
 
 
+def create_daily_todo_task(daily_todo: todo_models.DailyTodo):
+    daily_todo_task = todo_models.DailyTodoTask(
+        content=fake.text(),
+        is_completed=fake.boolean(),
+    )
+    daily_todo.daily_todo_tasks.append(daily_todo_task)
+
+    return daily_todo_task
+
+
+def create_daily_todo_tasks(daily_todo: todo_models.DailyTodo, n: int = 10):
+    return [create_daily_todo_task(daily_todo) for _ in range(n)]
+
+
 def str_to_date(date: str):
     return datetime.datetime.strptime(date, "%Y-%m-%d").date()
 
