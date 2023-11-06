@@ -82,6 +82,14 @@ async def async_session_factory(async_engine):
 async def async_session(async_session_factory):
     async with async_session_factory() as session:
         yield session
+    
+        stmt = 'TRUNCATE TABLE {} RESTART IDENTITY CASCADE;'
+        for table in reversed(user_metadata.sorted_tables):
+            await session.execute(text(stmt.format(table)))
+        for table in reversed(todo_metadata.sorted_tables):
+            await session.execute(text(stmt.format(table)))
+        
+        await session.commit()
 
 
 @pytest_asyncio.fixture(scope="function")
