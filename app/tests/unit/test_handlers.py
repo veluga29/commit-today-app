@@ -125,7 +125,7 @@ class TestDailyTodo:
 
         assert res["todo_repo_id"] == daily_todo.todo_repo_id
         assert res["date"] == daily_todo.date
-    
+
     @pytest.mark.asyncio
     async def test_create_daily_todo_if_todo_repo_does_not_exist(self, async_session: AsyncSession):
         # GIVEN
@@ -138,19 +138,20 @@ class TestDailyTodo:
         with pytest.raises(exceptions.NotFound):
             # THEN
             await DailyTodoService.create_daily_todo(
-                todo_repo_id, date, todo_repo_repository=todo_repo_repository, daily_todo_repository=daily_todo_repository
+                todo_repo_id,
+                date,
+                todo_repo_repository=todo_repo_repository,
+                daily_todo_repository=daily_todo_repository,
             )
 
     @pytest.mark.asyncio
     async def test_create_daily_todo_if_daily_todo_already_exists(self, async_session: AsyncSession):
         # GIVEN
         date = helpers.get_random_date()
-        
+
         todo_repo = helpers.create_todo_repo()
-        async_session.add(todo_repo)
-        await async_session.commit()
-        daily_todo = helpers.create_daily_todo(todo_repo_id=todo_repo.id, date=date)
-        async_session.add(daily_todo)
+        daily_todo = helpers.create_daily_todo(todo_repo=todo_repo, date=date)
+        async_session.add_all([todo_repo, daily_todo])
         await async_session.commit()
 
         # WHEN
@@ -159,5 +160,8 @@ class TestDailyTodo:
         with pytest.raises(exceptions.AlreadyExists):
             # THEN
             await DailyTodoService.create_daily_todo(
-                todo_repo.id, date, todo_repo_repository=todo_repo_repository, daily_todo_repository=daily_todo_repository
+                todo_repo.id,
+                date,
+                todo_repo_repository=todo_repo_repository,
+                daily_todo_repository=daily_todo_repository,
             )

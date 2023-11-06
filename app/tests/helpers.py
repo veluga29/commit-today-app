@@ -22,11 +22,11 @@ def create_todo_repos(user_id: int = 0, n: int = 10):
     return [create_todo_repo(user_id) for _ in range(n)]
 
 
-def create_daily_todo(todo_repo_id: int = 0, date: datetime.date = datetime.date.today()):
+def create_daily_todo(todo_repo: todo_models.TodoRepo, date: datetime.date = datetime.date.today()):
     daily_todo = todo_models.DailyTodo(
-        todo_repo_id=todo_repo_id,
         date=date,
     )
+    daily_todo.todo_repo = todo_repo
 
     return daily_todo
 

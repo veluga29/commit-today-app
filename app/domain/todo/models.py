@@ -28,7 +28,7 @@ class TodoRepo(Base):
 
 @dataclass
 class DailyTodo:
-    todo_repo_id: int = field(default=0)
+    todo_repo_id: int = field(init=False)
     date: date = field(default=date.today())
     
     # relationships

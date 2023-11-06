@@ -167,10 +167,8 @@ class TestDailyTodo:
         body = {"date": date}
         
         todo_repo = helpers.create_todo_repo()
-        async_session.add(todo_repo)
-        await async_session.commit()
-        daily_todo = helpers.create_daily_todo(todo_repo_id=todo_repo.id, date=helpers.str_to_date(date))
-        async_session.add(daily_todo)
+        daily_todo = helpers.create_daily_todo(todo_repo=todo_repo, date=helpers.str_to_date(date))
+        async_session.add_all([todo_repo, daily_todo])
         await async_session.commit()
 
         # WHEN

@@ -48,7 +48,7 @@ class DailyTodoService:
         if await daily_todo_repository.get(todo_repo_id, date):
             raise exceptions.AlreadyExists(f"DailyTodo with id ({todo_repo_id}, {date}) already exists")
         
-        daily_todo = todo_models.DailyTodo(todo_repo_id=todo_repo_id, date=date)
+        daily_todo = todo_models.DailyTodo(date=date)
         daily_todo.todo_repo = todo_repo
         
         await daily_todo_repository.create_daily_todo(daily_todo)
