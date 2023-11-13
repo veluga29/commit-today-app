@@ -230,7 +230,7 @@ class TestDailyTodo:
         assert daily_todo_task_for_test["is_completed"] is False
         assert daily_todo_task_for_test["todo_repo_id"] == daily_todo.todo_repo_id
         assert parse(daily_todo_task_for_test["date"]).date() == daily_todo.date
-    
+
     @pytest.mark.asyncio
     async def test_create_daily_todo_task_if_there_is_no_daily_todo(self, testing_app, async_session: AsyncSession):
         date = helpers.get_random_date()
@@ -293,3 +293,92 @@ class TestDailyTodo:
         daily_todo_tasks_for_test = response.json()
 
         assert daily_todo_tasks_for_test == []
+
+    @pytest.mark.asyncio
+    async def test_update_daily_todo_task_content(self, testing_app, async_session: AsyncSession):
+        # GIVEN
+        date = helpers.get_random_date()
+        todo_repo = helpers.create_todo_repo()
+        daily_todo = helpers.create_daily_todo(todo_repo=todo_repo, date=date)
+        daily_todo_task = helpers.create_daily_todo_task(daily_todo=daily_todo)
+        async_session.add_all([todo_repo, daily_todo])
+        await async_session.commit()
+
+        task_before_update = daily_todo_task.dict()
+        content = helpers.fake.text()
+        body = {"content": content}
+
+        # WHEN
+        URL = testing_app.url_path_for(
+            "update_daily_todo_task_content",
+            todo_repo_id=todo_repo.id,
+            date=date,
+            daily_todo_task_id=daily_todo_task.id,
+        )
+
+        async with AsyncClient(app=testing_app, base_url="http://test") as ac:
+            response = await ac.patch(URL, json=body)
+
+        # THEN
+        assert response.status_code == HTTPStatus.OK
+        daily_todo_task_for_test = response.json()
+
+        assert task_before_update["id"] == daily_todo_task_for_test["id"]
+        assert task_before_update["created_at"] == parse(daily_todo_task_for_test["created_at"])
+        assert task_before_update["updated_at"] <= parse(daily_todo_task_for_test["updated_at"])
+        assert task_before_update["content"] != daily_todo_task_for_test["content"]
+        assert task_before_update["is_completed"] == daily_todo_task_for_test["is_completed"]
+        assert task_before_update["todo_repo_id"] == daily_todo_task_for_test["todo_repo_id"]
+        assert task_before_update["date"] == parse(daily_todo_task_for_test["date"]).date()
+
+    @pytest.mark.asyncio
+    async def test_update_daily_todo_task_content_if_there_is_no_daily_todo(self, testing_app):
+        # GIVEN
+        date = helpers.get_random_date()
+        todo_repo_id = helpers.ID_MAX_LIMIT
+        daily_todo_task_id = helpers.ID_MAX_LIMIT
+        content = helpers.fake.text()
+        body = {"content": content}
+
+        # WHEN
+        URL = testing_app.url_path_for(
+            "update_daily_todo_task_content",
+            todo_repo_id=todo_repo_id,
+            date=date,
+            daily_todo_task_id=daily_todo_task_id,
+        )
+
+        async with AsyncClient(app=testing_app, base_url="http://test") as ac:
+            response = await ac.patch(URL, json=body)
+
+        # THEN
+        assert response.status_code == HTTPStatus.NOT_FOUND
+
+    @pytest.mark.asyncio
+    async def test_update_daily_todo_task_content_if_there_is_no_daily_todo_task(
+        self, testing_app, async_session: AsyncSession
+    ):
+        # GIVEN
+        date = helpers.get_random_date()
+        todo_repo = helpers.create_todo_repo()
+        daily_todo = helpers.create_daily_todo(todo_repo=todo_repo, date=date)
+        async_session.add_all([todo_repo, daily_todo])
+        await async_session.commit()
+
+        daily_todo_task_id = helpers.ID_MAX_LIMIT
+        content = helpers.fake.text()
+        body = {"content": content}
+
+        # WHEN
+        URL = testing_app.url_path_for(
+            "update_daily_todo_task_content",
+            todo_repo_id=todo_repo.id,
+            date=date,
+            daily_todo_task_id=daily_todo_task_id,
+        )
+
+        async with AsyncClient(app=testing_app, base_url="http://test") as ac:
+            response = await ac.patch(URL, json=body)
+
+        # THEN
+        assert response.status_code == HTTPStatus.NOT_FOUND

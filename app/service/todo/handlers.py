@@ -87,3 +87,24 @@ class DailyTodoService:
         daily_todo: todo_models.DailyTodo = await repository.get(todo_repo_id, date)
 
         return [t.dict() for t in daily_todo.daily_todo_tasks] if daily_todo else []
+
+    @staticmethod
+    async def update_daily_todo_task_content(
+        todo_repo_id: int,
+        date: datetime.date,
+        daily_todo_task_id: int,
+        content: str,
+        *,
+        repository: DailyTodoRepository,
+    ) -> dict:
+        if (daily_todo := await repository.get(todo_repo_id, date)) is None:
+            raise exceptions.DailyTodoNotFound(f"DailyTodo with id ({todo_repo_id}, {date}) not found")
+
+        if (daily_todo_task := daily_todo.get_daily_todo_task_by_id(daily_todo_task_id)) is None:
+            raise exceptions.DailyTodoTaskNotFound(f"DailyTodoTask with id {daily_todo_task_id} not found")
+
+        daily_todo_task.content = content
+
+        await repository.update_daily_todo()
+
+        return daily_todo_task.dict()

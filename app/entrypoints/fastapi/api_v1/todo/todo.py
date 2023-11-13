@@ -90,7 +90,9 @@ class DailyTodo:
         return out_schemas.DailyTodoOut(**res)
 
     @router.post("/todo-repos/{todo_repo_id}/daily-todos/{date}/daily-todo-tasks", status_code=status.HTTP_201_CREATED)
-    async def create_daily_todo_task(self, todo_repo_id: int = Path(), date: datetime.date = Path(), content: str = Body(embed=True)) -> out_schemas.DailyTodoTaskOut:
+    async def create_daily_todo_task(
+        self, todo_repo_id: int = Path(), date: datetime.date = Path(), content: str = Body(embed=True)
+    ) -> out_schemas.DailyTodoTaskOut:
         try:
             repository: DailyTodoRepository = DailyTodoRepository(self.session)
             res = await self.daily_todo_service.create_daily_todo_task(
@@ -103,9 +105,11 @@ class DailyTodo:
             raise HTTPException(status_code=404, detail="DailyTodo not found")
 
         return out_schemas.DailyTodoTaskOut(**res)
-    
+
     @router.get("/todo-repos/{todo_repo_id}/daily-todos/{date}/daily-todo-tasks", status_code=status.HTTP_200_OK)
-    async def get_daily_todo_tasks(self, todo_repo_id: int = Path(), date: datetime.date = Path()) -> list[out_schemas.DailyTodoTaskOut]:
+    async def get_daily_todo_tasks(
+        self, todo_repo_id: int = Path(), date: datetime.date = Path()
+    ) -> list[out_schemas.DailyTodoTaskOut]:
         repository: DailyTodoRepository = DailyTodoRepository(self.session)
         res = await self.daily_todo_service.get_daily_todo_tasks(
             todo_repo_id=todo_repo_id,
@@ -114,3 +118,30 @@ class DailyTodo:
         )
 
         return [out_schemas.DailyTodoTaskOut(**r) for r in res]
+
+    @router.patch(
+        "/todo-repos/{todo_repo_id}/daily-todos/{date}/daily-todo-tasks/{daily_todo_task_id}",
+        status_code=status.HTTP_200_OK,
+    )
+    async def update_daily_todo_task_content(
+        self,
+        todo_repo_id: int = Path(),
+        date: datetime.date = Path(),
+        daily_todo_task_id: int = Path(),
+        content: str = Body(embed=True),
+    ) -> out_schemas.DailyTodoTaskOut:
+        try:
+            repository: DailyTodoRepository = DailyTodoRepository(self.session)
+            res = await self.daily_todo_service.update_daily_todo_task_content(
+                todo_repo_id=todo_repo_id,
+                date=date,
+                daily_todo_task_id=daily_todo_task_id,
+                content=content,
+                repository=repository,
+            )
+        except exceptions.DailyTodoNotFound as e: 
+            raise HTTPException(status_code=404, detail=str(e))
+        except exceptions.DailyTodoTaskNotFound as e: 
+            raise HTTPException(status_code=404, detail=str(e))
+
+        return out_schemas.DailyTodoTaskOut(**res)

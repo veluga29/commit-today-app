@@ -41,6 +41,12 @@ class DailyTodo:
             date=self.date,
         )
 
+    def get_daily_todo_task_by_id(self, id: int) -> DailyTodoTask | None:
+        for task in self.daily_todo_tasks:
+            if task.id == id:
+                return task
+        return None
+
 
 @dataclass
 class DailyTodoTask(Base):
