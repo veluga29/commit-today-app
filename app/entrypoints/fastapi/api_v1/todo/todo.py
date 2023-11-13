@@ -35,8 +35,8 @@ class TodoRepo:
             res = await self.todo_service.update_todo_repo(
                 todo_repo_id, update_in.title, update_in.description, repository=repository
             )
-        except exceptions.NotFound:
-            raise HTTPException(status_code=404, detail="Todo Repo not found")
+        except exceptions.TodoRepoNotFound as e:
+            raise HTTPException(status_code=404, detail=str(e))
 
         return out_schemas.TodoRepoOut(**res)
 
@@ -66,10 +66,10 @@ class DailyTodo:
                 todo_repo_repository=todo_repo_repository,
                 daily_todo_repository=daily_todo_repository,
             )
-        except exceptions.NotFound:
-            raise HTTPException(status_code=404, detail="Todo Repo not found")
-        except exceptions.AlreadyExists:
-            raise HTTPException(status_code=400, detail="DailyTodo already exists")
+        except exceptions.TodoRepoNotFound as e:
+            raise HTTPException(status_code=404, detail=str(e))
+        except exceptions.DailyTodoAlreadyExists as e:
+            raise HTTPException(status_code=400, detail=str(e))
 
         return out_schemas.DailyTodoOut(**res)
 
@@ -84,8 +84,8 @@ class DailyTodo:
                 date=date,
                 repository=repository,
             )
-        except exceptions.NotFound:
-            raise HTTPException(status_code=404, detail="DailyTodo not found")
+        except exceptions.DailyTodoNotFound as e:
+            raise HTTPException(status_code=404, detail=str(e))
 
         return out_schemas.DailyTodoOut(**res)
 
@@ -101,8 +101,8 @@ class DailyTodo:
                 content=content,
                 repository=repository,
             )
-        except exceptions.NotFound:
-            raise HTTPException(status_code=404, detail="DailyTodo not found")
+        except exceptions.DailyTodoNotFound as e:
+            raise HTTPException(status_code=404, detail=str(e))
 
         return out_schemas.DailyTodoTaskOut(**res)
 

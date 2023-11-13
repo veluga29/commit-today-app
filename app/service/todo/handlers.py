@@ -20,7 +20,7 @@ class TodoRepoService:
         id: int, title: str | None, description: str | None, *, repository: TodoRepoRepository
     ) -> dict:
         if (todo_repo := await repository.get(id)) is None:
-            raise exceptions.NotFound(f"TodoRepo with id {id} not found")
+            raise exceptions.TodoRepoNotFound(f"TodoRepo with id {id} not found")
 
         if title:
             todo_repo.title = title
@@ -48,9 +48,9 @@ class DailyTodoService:
         daily_todo_repository: DailyTodoRepository,
     ) -> dict:
         if (todo_repo := await todo_repo_repository.get(todo_repo_id)) is None:
-            raise exceptions.NotFound(f"TodoRepo with id {todo_repo_id} not found")
+            raise exceptions.TodoRepoNotFound(f"TodoRepo with id {todo_repo_id} not found")
         if await daily_todo_repository.get(todo_repo_id, date):
-            raise exceptions.AlreadyExists(f"DailyTodo with id ({todo_repo_id}, {date}) already exists")
+            raise exceptions.DailyTodoAlreadyExists(f"DailyTodo with id ({todo_repo_id}, {date}) already exists")
 
         daily_todo = todo_models.DailyTodo(date=date)
         daily_todo.todo_repo = todo_repo
@@ -62,7 +62,7 @@ class DailyTodoService:
     @staticmethod
     async def get_daily_todo(todo_repo_id: int, date: datetime.date, *, repository: DailyTodoRepository) -> dict:
         if (daily_todo := await repository.get(todo_repo_id, date)) is None:
-            raise exceptions.NotFound(f"DailyTodo with id ({todo_repo_id}, {date}) not found")
+            raise exceptions.DailyTodoNotFound(f"DailyTodo with id ({todo_repo_id}, {date}) not found")
 
         return daily_todo.dict()
 
@@ -71,7 +71,7 @@ class DailyTodoService:
         todo_repo_id: int, date: datetime.date, content: str, *, repository: DailyTodoRepository
     ) -> dict:
         if (daily_todo := await repository.get(todo_repo_id, date)) is None:
-            raise exceptions.NotFound(f"DailyTodo with id ({todo_repo_id}, {date}) not found")
+            raise exceptions.DailyTodoNotFound(f"DailyTodo with id ({todo_repo_id}, {date}) not found")
 
         daily_todo_task = todo_models.DailyTodoTask(content=content)
         daily_todo.daily_todo_tasks.append(daily_todo_task)

@@ -1,8 +1,8 @@
-class AlreadyExists(Exception):
+class DailyTodoAlreadyExists(Exception):
     ...
 
 
-class NotFound(Exception):
+class TodoRepoNotFound(Exception):
     ...
 
 

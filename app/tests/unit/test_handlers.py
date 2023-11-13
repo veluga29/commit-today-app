@@ -73,7 +73,7 @@ class TestTodoRepo:
 
         # WHEN
         repository = TodoRepoRepository(async_session)
-        with pytest.raises(exceptions.NotFound):
+        with pytest.raises(exceptions.TodoRepoNotFound):
             # THEN
             await TodoRepoService.update_todo_repo(repo_id, title, description, repository=repository)
 
@@ -135,7 +135,7 @@ class TestDailyTodo:
         # WHEN
         todo_repo_repository = TodoRepoRepository(async_session)
         daily_todo_repository = DailyTodoRepository(async_session)
-        with pytest.raises(exceptions.NotFound):
+        with pytest.raises(exceptions.TodoRepoNotFound):
             # THEN
             await DailyTodoService.create_daily_todo(
                 todo_repo_id,
@@ -157,7 +157,7 @@ class TestDailyTodo:
         # WHEN
         todo_repo_repository = TodoRepoRepository(async_session)
         daily_todo_repository = DailyTodoRepository(async_session)
-        with pytest.raises(exceptions.AlreadyExists):
+        with pytest.raises(exceptions.DailyTodoAlreadyExists):
             # THEN
             await DailyTodoService.create_daily_todo(
                 todo_repo.id,
@@ -226,7 +226,7 @@ class TestDailyTodo:
 
         # WHEN
         repository = DailyTodoRepository(async_session)
-        with pytest.raises(exceptions.NotFound):
+        with pytest.raises(exceptions.DailyTodoNotFound):
             # THEN
             await DailyTodoService.create_daily_todo_task(todo_repo_id, date, content, repository=repository)
 
