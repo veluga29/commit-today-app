@@ -272,7 +272,7 @@ class TestDailyTodo:
         assert res_list == []
 
     @pytest.mark.asyncio
-    async def test_update_daily_todo_task_content(self, async_session: AsyncSession):
+    async def test_update_daily_todo_task_for_content(self, async_session: AsyncSession):
         # GIVEN
         date = helpers.get_random_date()
         todo_repo = helpers.create_todo_repo()
@@ -286,7 +286,7 @@ class TestDailyTodo:
 
         # WHEN
         repository = DailyTodoRepository(async_session)
-        res = await DailyTodoService.update_daily_todo_task_content(
+        res = await DailyTodoService.update_daily_todo_task_for_content(
             daily_todo.todo_repo_id, daily_todo.date, daily_todo_task.id, content, repository=repository
         )
 
@@ -302,7 +302,7 @@ class TestDailyTodo:
         assert task_before_update["date"] == res["date"]
 
     @pytest.mark.asyncio
-    async def test_update_daily_todo_task_content_if_there_is_no_daily_todo(self, async_session: AsyncSession):
+    async def test_update_daily_todo_task_for_content_if_there_is_no_daily_todo(self, async_session: AsyncSession):
         # GIVEN
         date = helpers.get_random_date()
         todo_repo_id = helpers.ID_MAX_LIMIT
@@ -313,12 +313,12 @@ class TestDailyTodo:
         repository = DailyTodoRepository(async_session)
         with pytest.raises(exceptions.DailyTodoNotFound):
             # THEN
-            await DailyTodoService.update_daily_todo_task_content(
+            await DailyTodoService.update_daily_todo_task_for_content(
                 todo_repo_id, date, daily_todo_task_id, content, repository=repository
             )
 
     @pytest.mark.asyncio
-    async def test_update_daily_todo_task_content_if_there_is_no_daily_todo_task(self, async_session: AsyncSession):
+    async def test_update_daily_todo_task_for_content_if_there_is_no_daily_todo_task(self, async_session: AsyncSession):
         # GIVEN
         date = helpers.get_random_date()
         todo_repo = helpers.create_todo_repo()
@@ -333,6 +333,6 @@ class TestDailyTodo:
         repository = DailyTodoRepository(async_session)
         with pytest.raises(exceptions.DailyTodoTaskNotFound):
             # THEN
-            await DailyTodoService.update_daily_todo_task_content(
+            await DailyTodoService.update_daily_todo_task_for_content(
                 todo_repo.id, date, daily_todo_task_id, content, repository=repository
             )

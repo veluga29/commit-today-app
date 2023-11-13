@@ -295,7 +295,7 @@ class TestDailyTodo:
         assert daily_todo_tasks_for_test == []
 
     @pytest.mark.asyncio
-    async def test_update_daily_todo_task_content(self, testing_app, async_session: AsyncSession):
+    async def test_update_daily_todo_task_for_content(self, testing_app, async_session: AsyncSession):
         # GIVEN
         date = helpers.get_random_date()
         todo_repo = helpers.create_todo_repo()
@@ -310,7 +310,7 @@ class TestDailyTodo:
 
         # WHEN
         URL = testing_app.url_path_for(
-            "update_daily_todo_task_content",
+            "update_daily_todo_task_for_content",
             todo_repo_id=todo_repo.id,
             date=date,
             daily_todo_task_id=daily_todo_task.id,
@@ -332,7 +332,7 @@ class TestDailyTodo:
         assert task_before_update["date"] == parse(daily_todo_task_for_test["date"]).date()
 
     @pytest.mark.asyncio
-    async def test_update_daily_todo_task_content_if_there_is_no_daily_todo(self, testing_app):
+    async def test_update_daily_todo_task_for_content_if_there_is_no_daily_todo(self, testing_app):
         # GIVEN
         date = helpers.get_random_date()
         todo_repo_id = helpers.ID_MAX_LIMIT
@@ -342,7 +342,7 @@ class TestDailyTodo:
 
         # WHEN
         URL = testing_app.url_path_for(
-            "update_daily_todo_task_content",
+            "update_daily_todo_task_for_content",
             todo_repo_id=todo_repo_id,
             date=date,
             daily_todo_task_id=daily_todo_task_id,
@@ -355,7 +355,7 @@ class TestDailyTodo:
         assert response.status_code == HTTPStatus.NOT_FOUND
 
     @pytest.mark.asyncio
-    async def test_update_daily_todo_task_content_if_there_is_no_daily_todo_task(
+    async def test_update_daily_todo_task_for_content_if_there_is_no_daily_todo_task(
         self, testing_app, async_session: AsyncSession
     ):
         # GIVEN
@@ -371,7 +371,7 @@ class TestDailyTodo:
 
         # WHEN
         URL = testing_app.url_path_for(
-            "update_daily_todo_task_content",
+            "update_daily_todo_task_for_content",
             todo_repo_id=todo_repo.id,
             date=date,
             daily_todo_task_id=daily_todo_task_id,

@@ -123,7 +123,7 @@ class DailyTodo:
         "/todo-repos/{todo_repo_id}/daily-todos/{date}/daily-todo-tasks/{daily_todo_task_id}",
         status_code=status.HTTP_200_OK,
     )
-    async def update_daily_todo_task_content(
+    async def update_daily_todo_task_for_content(
         self,
         todo_repo_id: int = Path(),
         date: datetime.date = Path(),
@@ -132,7 +132,7 @@ class DailyTodo:
     ) -> out_schemas.DailyTodoTaskOut:
         try:
             repository: DailyTodoRepository = DailyTodoRepository(self.session)
-            res = await self.daily_todo_service.update_daily_todo_task_content(
+            res = await self.daily_todo_service.update_daily_todo_task_for_content(
                 todo_repo_id=todo_repo_id,
                 date=date,
                 daily_todo_task_id=daily_todo_task_id,

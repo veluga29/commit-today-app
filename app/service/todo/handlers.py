@@ -89,7 +89,7 @@ class DailyTodoService:
         return [t.dict() for t in daily_todo.daily_todo_tasks] if daily_todo else []
 
     @staticmethod
-    async def update_daily_todo_task_content(
+    async def update_daily_todo_task_for_content(
         todo_repo_id: int,
         date: datetime.date,
         daily_todo_task_id: int,
