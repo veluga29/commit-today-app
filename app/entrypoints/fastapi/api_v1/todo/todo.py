@@ -120,7 +120,7 @@ class DailyTodo:
         return [out_schemas.DailyTodoTaskOut(**r) for r in res]
 
     @router.patch(
-        "/todo-repos/{todo_repo_id}/daily-todos/{date}/daily-todo-tasks/{daily_todo_task_id}",
+        "/todo-repos/{todo_repo_id}/daily-todos/{date}/daily-todo-tasks/{daily_todo_task_id}/content",
         status_code=status.HTTP_200_OK,
     )
     async def update_daily_todo_task_for_content(
