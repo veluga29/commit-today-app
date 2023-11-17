@@ -3,8 +3,6 @@ from typing import TypeVar
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.domain.user import models as user_models
-
 
 ModelType = TypeVar("ModelType")
 
