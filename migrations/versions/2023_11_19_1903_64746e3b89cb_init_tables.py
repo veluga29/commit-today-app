@@ -1,8 +1,8 @@
 """Init tables
 
-Revision ID: 958e7330a8fd
+Revision ID: 64746e3b89cb
 Revises: 
-Create Date: 2023-11-06 23:19:42.621756
+Create Date: 2023-11-19 19:03:37.056484
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision = '958e7330a8fd'
+revision = '64746e3b89cb'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -22,12 +22,14 @@ def upgrade() -> None:
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('created_at', postgresql.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', postgresql.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
-    sa.Column('fullname', sa.String(length=50), nullable=False),
+    sa.Column('email', sa.String(), nullable=False),
+    sa.Column('password', sa.String(), nullable=False),
     sa.Column('username', sa.String(length=50), nullable=False),
-    sa.Column('email', sa.String(length=50), nullable=False),
-    sa.Column('password', sa.String(length=64), nullable=False),
+    sa.Column('last_name', sa.String(length=30), nullable=False),
+    sa.Column('first_name', sa.String(length=30), nullable=False),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_users_email'), 'users', ['email'], unique=False)
     op.create_table('todo_repos',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('created_at', postgresql.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
@@ -66,5 +68,6 @@ def downgrade() -> None:
     op.drop_table('daily_todos')
     op.drop_index(op.f('ix_todo_repos_user_id'), table_name='todo_repos')
     op.drop_table('todo_repos')
+    op.drop_index(op.f('ix_users_email'), table_name='users')
     op.drop_table('users')
     # ### end Alembic commands ###
