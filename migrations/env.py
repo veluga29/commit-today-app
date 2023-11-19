@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from alembic import context
 
-from app.adapters.user.persistent_orm import mapper_registry as user  # NEW
+from app.adapters.auth.persistent_orm import mapper_registry as auth  # NEW
 from app.adapters.todo.persistent_orm import mapper_registry as todo  # NEW
 from app import settings
 
@@ -24,7 +24,7 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-target_metadata = [user.metadata, todo.metadata]  # UPDATED
+target_metadata = [auth.metadata, todo.metadata]  # UPDATED
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
