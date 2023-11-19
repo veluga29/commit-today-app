@@ -45,8 +45,14 @@ class SQLiteSettings(BaseSettings):
         return f"{self.SQLITE_PROTOCOL}:///{self.SQLITE_FILEPATH}"
 
 
+class AuthSettings(BaseSettings):
+    HASH_ENCODING: str = "UTF-8"
+
+
 POSTGRES_SETTINGS = PostgresSettings()
 SQLITE_SETTINGS = SQLiteSettings()
+
+AUTH_SETTINGS = AuthSettings()
 
 STAGE = os.environ.get("STAGE", "local")
 API_V1_STR: str = os.environ.get("API_V1_STR", "/api/v1")

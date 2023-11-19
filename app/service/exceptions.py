@@ -1,3 +1,7 @@
+class UserAlreadyExists(Exception):
+    ...
+
+
 class DailyTodoAlreadyExists(Exception):
     ...
 
