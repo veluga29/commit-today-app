@@ -27,7 +27,7 @@ users = Table(
         nullable=False,
     ),
     Column("email", String, index=True, nullable=False),
-    Column("password", String(64), nullable=False),
+    Column("password", String, nullable=False),
     Column("username", String(50), nullable=False),
     Column("last_name", String(30), nullable=False),
     Column("first_name", String(30), nullable=False),
