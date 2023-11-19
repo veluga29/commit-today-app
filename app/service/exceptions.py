@@ -2,6 +2,14 @@ class UserAlreadyExists(Exception):
     ...
 
 
+class UserNotFound(Exception):
+    ...
+
+
+class PasswordNotMatch(Exception):
+    ...
+
+
 class DailyTodoAlreadyExists(Exception):
     ...
 

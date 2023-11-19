@@ -47,6 +47,8 @@ class SQLiteSettings(BaseSettings):
 
 class AuthSettings(BaseSettings):
     HASH_ENCODING: str = "UTF-8"
+    JWT_SECRET_KEY: str = ""
+    JWT_ALGORITHM: str = ""
 
 
 POSTGRES_SETTINGS = PostgresSettings()

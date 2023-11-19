@@ -31,18 +31,20 @@ class Auth:
             )
         except exceptions.UserAlreadyExists as e:
             raise HTTPException(status_code=400, detail=str(e))
-            
 
         return out_schemas.UserOut(**res)
 
-    # @router.post("/log-in", status_code=200)
-    # async def user_log_in():
-    #     # 1. request body(username, password)
-    #     # 2. db read user
-    #     # 3. user.password req.password -> bcrypt.checkpw
-    #     # 4. create jwt
-    #     # 5. return jwt
-    #     ...
+    @router.post("/login", status_code=200)
+    async def user_login(self, login_in: in_schemas.UserLoginIn) -> out_schemas.JWTOut:
+        try:
+            repository: UserRepository = UserRepository(self.session)
+            res = await self.user_service.login_user(login_in.email, login_in.password, repository=repository)
+        except exceptions.UserNotFound as e:
+            raise HTTPException(status_code=404, detail=str(e))
+        except exceptions.PasswordNotMatch as e:
+            raise HTTPException(status_code=401, detail=str(e))
+        
+        return out_schemas.JWTOut(**res)
 
     # @router.post("/log-out", status_code=200)
     # async def user_log_out():
