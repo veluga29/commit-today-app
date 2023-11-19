@@ -17,11 +17,11 @@ class Auth:
     session: AsyncSession = Depends(get_session)
     user_service: UserService = Depends()
 
-    @router.post("/sign-up", status_code=201)
-    async def user_sign_up(self, sign_up_in: in_schemas.UserSignUpIn) -> out_schemas.UserOut:
+    @router.post("/signup", status_code=201)
+    async def user_signup(self, sign_up_in: in_schemas.UserSignUpIn) -> out_schemas.UserOut:
         try:
             repository: UserRepository = UserRepository(self.session)
-            res = await self.user_service.sign_up_user(
+            res = await self.user_service.signup_user(
                 sign_up_in.email,
                 sign_up_in.password,
                 sign_up_in.username,
@@ -43,7 +43,7 @@ class Auth:
             raise HTTPException(status_code=404, detail=str(e))
         except exceptions.PasswordNotMatch as e:
             raise HTTPException(status_code=401, detail=str(e))
-        
+
         return out_schemas.JWTOut(**res)
 
     # @router.post("/log-out", status_code=200)

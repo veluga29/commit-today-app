@@ -6,7 +6,7 @@ from app.security import JWTAuthorizer
 
 class UserService:
     @staticmethod
-    async def sign_up_user(
+    async def signup_user(
         email: str, password: str, user_name: str, last_name: str, first_name: str, *, repository: UserRepository
     ) -> dict:
         if await repository.get_user_by_email(email):
