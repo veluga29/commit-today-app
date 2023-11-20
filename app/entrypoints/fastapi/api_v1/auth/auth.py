@@ -1,4 +1,4 @@
-from fastapi import APIRouter, status, Depends, Path, Body, HTTPException
+from fastapi import APIRouter, status, Depends, Path, Body, HTTPException, Response
 from fastapi_restful.cbv import cbv
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -35,7 +35,7 @@ class Auth:
         return out_schemas.UserOut(**res)
 
     @router.post("/login", status_code=200)
-    async def user_login(self, login_in: in_schemas.UserLoginIn) -> out_schemas.JWTOut:
+    async def user_login(self, login_in: in_schemas.UserLoginIn, response: Response):
         try:
             repository: UserRepository = UserRepository(self.session)
             res = await self.user_service.login_user(login_in.email, login_in.password, repository=repository)
@@ -44,7 +44,7 @@ class Auth:
         except exceptions.PasswordNotMatch as e:
             raise HTTPException(status_code=401, detail=str(e))
 
-        return out_schemas.JWTOut(**res)
+        response.set_cookie(key="access_token", value=res["access_token"], httponly=True, secure=True)
 
     # @router.post("/log-out", status_code=200)
     # async def user_log_out():
