@@ -49,6 +49,7 @@ class AuthSettings(BaseSettings):
     HASH_ENCODING: str = "UTF-8"
     JWT_SECRET_KEY: str = ""
     JWT_ALGORITHM: str = ""
+    JWT_EXPIRES_DELTA: int = 0
 
 
 POSTGRES_SETTINGS = PostgresSettings()
