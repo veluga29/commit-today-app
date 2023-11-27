@@ -10,9 +10,9 @@ import pytest
 import pytest_asyncio
 
 from app.main import app
-from app.adapters.user.persistent_orm import start_mappers as user_start_mappers
+from app.adapters.auth.persistent_orm import start_mappers as auth_start_mappers
 from app.adapters.todo.persistent_orm import start_mappers as todo_start_mappers
-from app.adapters.user.persistent_orm import metadata as user_metadata
+from app.adapters.auth.persistent_orm import metadata as auth_metadata
 from app.adapters.todo.persistent_orm import metadata as todo_metadata
 from app import settings
 from app.db import get_session
@@ -44,7 +44,7 @@ async def create_test_db():
 
 @pytest_asyncio.fixture(scope="session")
 async def mappers(create_test_db):
-    user_start_mappers()
+    auth_start_mappers()
     todo_start_mappers()
     yield
     clear_mappers()
@@ -55,13 +55,13 @@ async def async_engine(mappers):
     async_engine = create_async_engine(settings.POSTGRES_SETTINGS.get_test_dsn(), future=True)
 
     async with async_engine.begin() as conn:
-        await conn.run_sync(user_metadata.create_all)
+        await conn.run_sync(auth_metadata.create_all)
         await conn.run_sync(todo_metadata.create_all)
 
     yield async_engine
 
     async with async_engine.begin() as conn:
-        await conn.run_sync(user_metadata.drop_all)
+        await conn.run_sync(auth_metadata.drop_all)
         await conn.run_sync(todo_metadata.drop_all)
 
     await async_engine.dispose()
@@ -82,13 +82,13 @@ async def async_session_factory(async_engine):
 async def async_session(async_session_factory):
     async with async_session_factory() as session:
         yield session
-    
-        stmt = 'TRUNCATE TABLE {} RESTART IDENTITY CASCADE;'
-        for table in reversed(user_metadata.sorted_tables):
+
+        stmt = "TRUNCATE TABLE {} RESTART IDENTITY CASCADE;"
+        for table in reversed(auth_metadata.sorted_tables):
             await session.execute(text(stmt.format(table)))
         for table in reversed(todo_metadata.sorted_tables):
             await session.execute(text(stmt.format(table)))
-        
+
         await session.commit()
 
 

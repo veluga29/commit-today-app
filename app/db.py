@@ -5,12 +5,12 @@ from sqlalchemy.ext.asyncio import (
 )
 
 from app import settings
-from app.adapters.auth.persistent_orm import start_mappers as user_start_mappers
+from app.adapters.auth.persistent_orm import start_mappers as auth_start_mappers
 from app.adapters.todo.persistent_orm import start_mappers as todo_start_mappers
 
 
 if settings.STAGE != "testing":
-    user_start_mappers()
+    auth_start_mappers()
     todo_start_mappers()
 
 
