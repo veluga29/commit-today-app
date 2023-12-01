@@ -28,5 +28,5 @@ class DailyTodoTaskOut(BaseModel):
     date: date
 
 
-class TodoRepoPaginationOut(PaginationResponse):
+class TodoRepoPaginationResponse(PaginationResponse):
     data: list[TodoRepoOut]

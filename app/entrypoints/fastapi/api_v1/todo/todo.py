@@ -44,13 +44,13 @@ class TodoRepo:
     @router.get("/todo-repos", status_code=status.HTTP_200_OK)
     async def get_todo_repos(
         self, pagination: general_schemas.PaginationQueryParams = Depends()
-    ) -> out_schemas.TodoRepoPaginationOut:
+    ) -> out_schemas.TodoRepoPaginationResponse:
         repository: TodoRepoRepository = TodoRepoRepository(self.session)
         res = await self.todo_service.get_todo_repos(
             cursor=pagination.cursor, page_size=pagination.page_size, repository=repository
         )
 
-        return out_schemas.TodoRepoPaginationOut(ok=True, message=enums.ResponseMessage.SUCCESS, **res)
+        return out_schemas.TodoRepoPaginationResponse(ok=True, message=enums.ResponseMessage.SUCCESS, **res)
 
 
 @cbv(router)
