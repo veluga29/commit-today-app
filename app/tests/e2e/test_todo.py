@@ -28,7 +28,10 @@ class TestTodoRepo:
 
         # THEN
         assert response.status_code == HTTPStatus.CREATED
-        repo_for_test = response.json()
+        res = response.json()
+        assert res["ok"]
+        assert res["message"] == api_enums.ResponseMessage.CREATE_SUCCESS
+        assert (repo_for_test := res["data"])
 
         assert repo_for_test["id"]
         assert repo_for_test["created_at"]

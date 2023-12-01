@@ -21,11 +21,13 @@ class TodoRepo:
     todo_service: TodoRepoService = Depends()
 
     @router.post("/todo-repos", status_code=status.HTTP_201_CREATED)
-    async def create_todo_repo(self, create_in: in_schemas.TodoRepoCreateIn) -> out_schemas.TodoRepoOut:
+    async def create_todo_repo(self, create_in: in_schemas.TodoRepoCreateIn) -> out_schemas.TodoRepoResponse:
         repository: TodoRepoRepository = TodoRepoRepository(self.session)
         res = await self.todo_service.create_todo_repo(create_in.title, create_in.description, repository=repository)
 
-        return out_schemas.TodoRepoOut(**res)
+        return out_schemas.TodoRepoResponse(
+            ok=True, message=enums.ResponseMessage.CREATE_SUCCESS, data=out_schemas.TodoRepoOut(**res)
+        )
 
     @router.patch("/todo-repos/{todo_repo_id}", status_code=status.HTTP_200_OK)
     async def update_todo_repo(
