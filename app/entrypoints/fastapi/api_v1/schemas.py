@@ -12,8 +12,8 @@ class Response(BaseModel, Generic[DT]):
 
 
 class Cursors(BaseModel):
-    prev: int | None
-    next: int | None
+    prev: int | None = Field(None)
+    next: int | None = Field(None)
 
 
 class Paging(BaseModel):
