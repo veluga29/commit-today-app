@@ -1,5 +1,4 @@
 import asyncio
-from fastapi.testclient import TestClient
 from sqlalchemy import text
 from sqlalchemy.orm import sessionmaker, clear_mappers
 from sqlalchemy.ext.asyncio import (
