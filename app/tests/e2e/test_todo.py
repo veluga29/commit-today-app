@@ -9,6 +9,8 @@ from dateutil.parser import parse
 
 from app.tests import helpers
 from app.domain.todo import models
+from app.entrypoints.fastapi.api_v1.todo import enums as api_enums
+from app.tests import utils
 
 
 class TestTodoRepo:
@@ -111,15 +113,109 @@ class TestTodoRepo:
 
         # THEN
         assert response.status_code == HTTPStatus.OK
-        repos_for_test = response.json()
+        res = response.json()
+        assert res["ok"]
+        assert res["message"] == api_enums.ResponseMessage.SUCCESS
+        assert res["data"]
+        assert res["paging"]
+        assert res["paging"]["cursors"]
+        assert res["paging"]["cursors"]["prev"] is None
+        assert res["paging"]["cursors"]["next"] == 11
+        assert res["paging"]["has_prev"] is False
+        assert res["paging"]["has_next"] is True
+        repos_for_test = res["data"]
 
-        for repo, repo_for_test in zip(repos, repos_for_test):
+        for repo, repo_for_test in zip(repos[-1::-1], repos_for_test):
             assert repo.id == repo_for_test["id"]
             assert repo.created_at == parse(repo_for_test["created_at"])
             assert repo.updated_at == parse(repo_for_test["updated_at"])
             assert repo.title == repo_for_test["title"]
             assert repo.description == repo_for_test["description"]
             assert repo.user_id == repo_for_test["user_id"]
+
+    @pytest.mark.asyncio
+    async def test_get_todo_repos_for_pagination(self, testing_app, async_session: AsyncSession):
+        # GIVEN
+        # user_id = random.choice(range(1, 100)) # TODO
+        n = 20
+        page_size = 10
+        repos = helpers.create_todo_repos(n=n)
+        async_session.add_all(repos)
+        await async_session.commit()
+
+        # WHEN
+        URL = testing_app.url_path_for("get_todo_repos")
+
+        async with AsyncClient(app=testing_app, base_url="http://test") as ac:
+            response = await ac.get(utils.get_url_with_query_string(URL, cursor=None, page_size=page_size))
+
+        # THEN
+        assert response.status_code == HTTPStatus.OK
+        res = response.json()
+        assert res["ok"]
+        assert res["message"] == api_enums.ResponseMessage.SUCCESS
+
+        assert (data := res["data"])
+        assert len(data) == page_size
+        assert data[0]["id"] == 20
+        assert data[-1]["id"] == 11
+
+        assert res["paging"]
+        assert res["paging"]["cursors"]
+        assert res["paging"]["cursors"]["prev"] is None
+        assert res["paging"]["cursors"]["next"] == 11
+        assert res["paging"]["has_prev"] is False
+        assert res["paging"]["has_next"] is True
+
+        # WHEN
+        next_cursor = res["paging"]["cursors"]["next"]
+        URL = testing_app.url_path_for("get_todo_repos")
+
+        async with AsyncClient(app=testing_app, base_url="http://test") as ac:
+            response = await ac.get(utils.get_url_with_query_string(URL, cursor=next_cursor, page_size=page_size))
+
+        # THEN
+        assert response.status_code == HTTPStatus.OK
+        res = response.json()
+        assert res["ok"]
+        assert res["message"] == api_enums.ResponseMessage.SUCCESS
+
+        assert (data := res["data"])
+        assert len(data) == page_size
+        assert data[0]["id"] == 10
+        assert data[-1]["id"] == 1
+
+        assert res["paging"]
+        assert res["paging"]["cursors"]
+        assert res["paging"]["cursors"]["prev"] == None
+        assert res["paging"]["cursors"]["next"] == None
+        assert res["paging"]["has_prev"] is True
+        assert res["paging"]["has_next"] is False
+
+        # WHEN
+        prev_cursor = res["paging"]["cursors"]["prev"]
+        URL = testing_app.url_path_for("get_todo_repos")
+
+        async with AsyncClient(app=testing_app, base_url="http://test") as ac:
+            response = await ac.get(utils.get_url_with_query_string(URL, cursor=prev_cursor, page_size=page_size))
+
+        # THEN
+        assert response.status_code == HTTPStatus.OK
+        res = response.json()
+        assert res["ok"]
+        assert res["message"] == api_enums.ResponseMessage.SUCCESS
+
+        assert (data := res["data"])
+        assert len(data) == page_size
+        assert data[0]["id"] == 20
+        assert data[-1]["id"] == 11
+
+        assert res["paging"]
+        assert res["paging"]["cursors"]
+        assert res["paging"]["cursors"]["prev"] is None
+        assert res["paging"]["cursors"]["next"] == 11
+        assert res["paging"]["has_prev"] is False
+        assert res["paging"]["has_next"] is True
 
 
 class TestDailyTodo:

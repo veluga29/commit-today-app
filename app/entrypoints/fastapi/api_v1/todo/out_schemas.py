@@ -1,6 +1,7 @@
 from datetime import datetime, date
-
 from pydantic import BaseModel
+
+from app.entrypoints.fastapi.api_v1.schemas import PaginationResponse
 
 
 class TodoRepoOut(BaseModel):
@@ -25,3 +26,7 @@ class DailyTodoTaskOut(BaseModel):
     is_completed: bool
     todo_repo_id: int
     date: date
+
+
+class TodoRepoPaginationOut(PaginationResponse):
+    data: list[TodoRepoOut]

@@ -3,6 +3,7 @@ import datetime
 from app.domain.todo import models as todo_models
 from app.adapters.todo.repository import TodoRepoRepository, DailyTodoRepository
 from app.service import exceptions
+from app.service.utils import CursorPagination
 
 
 class TodoRepoService:
@@ -32,10 +33,20 @@ class TodoRepoService:
         return res.dict()
 
     @staticmethod
-    async def get_todo_repos(user_id: int = 0, *, repository: TodoRepoRepository) -> list[dict]:
-        res = await repository.get_todo_repos_by_user_id(user_id)
+    async def get_todo_repos(
+        user_id: int = 0, cursor: int | None = None, page_size: int = 10, *, repository: TodoRepoRepository
+    ) -> dict:
+        curr_items = await repository.get_todo_repos_by_user_id(user_id, cursor, page_size)
 
-        return [r.dict() for r in res]
+        # Pagination
+        cursor_pagination = CursorPagination(cursor=cursor, page_size=page_size, curr_items=curr_items)
+        next_cursor = cursor_pagination.next_cursor
+
+        prev_items, next_items = await repository.get_prev_todo_repos_and_next_todo_repos(
+            user_id=user_id, cursor=cursor, next_cursor=next_cursor, page_size=page_size
+        )
+
+        return cursor_pagination.get_pagiantion_response(prev_items=prev_items, next_items=next_items)
 
 
 class DailyTodoService:

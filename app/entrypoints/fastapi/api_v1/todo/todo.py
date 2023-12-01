@@ -3,8 +3,9 @@ from fastapi import APIRouter, status, Depends, Path, Body, HTTPException
 from fastapi_restful.cbv import cbv
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.entrypoints.fastapi.api_v1.todo import in_schemas
-from app.entrypoints.fastapi.api_v1.todo import out_schemas
+from app.entrypoints.fastapi.api_v1.todo import in_schemas, out_schemas
+from app.entrypoints.fastapi.api_v1 import schemas as general_schemas
+from app.entrypoints.fastapi.api_v1.todo import enums
 from app.service.todo.handlers import TodoRepoService, DailyTodoService
 from app.service import exceptions
 from app.adapters.todo.repository import TodoRepoRepository, DailyTodoRepository
@@ -41,11 +42,15 @@ class TodoRepo:
         return out_schemas.TodoRepoOut(**res)
 
     @router.get("/todo-repos", status_code=status.HTTP_200_OK)
-    async def get_todo_repos(self) -> list[out_schemas.TodoRepoOut]:
+    async def get_todo_repos(
+        self, pagination: general_schemas.PaginationQueryParams = Depends()
+    ) -> out_schemas.TodoRepoPaginationOut:
         repository: TodoRepoRepository = TodoRepoRepository(self.session)
-        res = await self.todo_service.get_todo_repos(repository=repository)
+        res = await self.todo_service.get_todo_repos(
+            cursor=pagination.cursor, page_size=pagination.page_size, repository=repository
+        )
 
-        return [out_schemas.TodoRepoOut(**r) for r in res]
+        return out_schemas.TodoRepoPaginationOut(ok=True, message=enums.ResponseMessage.SUCCESS, **res)
 
 
 @cbv(router)
@@ -139,9 +144,9 @@ class DailyTodo:
                 content=content,
                 repository=repository,
             )
-        except exceptions.DailyTodoNotFound as e: 
+        except exceptions.DailyTodoNotFound as e:
             raise HTTPException(status_code=404, detail=str(e))
-        except exceptions.DailyTodoTaskNotFound as e: 
+        except exceptions.DailyTodoTaskNotFound as e:
             raise HTTPException(status_code=404, detail=str(e))
 
         return out_schemas.DailyTodoTaskOut(**res)
@@ -166,9 +171,9 @@ class DailyTodo:
                 is_completed=is_completed,
                 repository=repository,
             )
-        except exceptions.DailyTodoNotFound as e: 
+        except exceptions.DailyTodoNotFound as e:
             raise HTTPException(status_code=404, detail=str(e))
-        except exceptions.DailyTodoTaskNotFound as e: 
+        except exceptions.DailyTodoTaskNotFound as e:
             raise HTTPException(status_code=404, detail=str(e))
 
         return out_schemas.DailyTodoTaskOut(**res)

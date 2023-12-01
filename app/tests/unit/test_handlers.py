@@ -81,24 +81,103 @@ class TestTodoRepo:
     async def test_get_todo_repos(self, async_session: AsyncSession):
         # GIVEN
         # user_id = random.choice(range(1, 100))  # TODO
+        cursor = None
+        page_size = 10
         repos = helpers.create_todo_repos(n=20)
         async_session.add_all(repos)
         await async_session.commit()
 
         # WHEN
         repository = TodoRepoRepository(async_session)
-        res_list = await TodoRepoService.get_todo_repos(0, repository=repository)
+        res = await TodoRepoService.get_todo_repos(user_id=0, cursor=cursor, page_size=page_size, repository=repository)
 
         # THEN
-        assert res_list
+        assert res
+        assert (repos_for_test := res["data"])
+        assert len(repos_for_test) == page_size
+        assert res["paging"]
+        assert res["paging"]["cursors"]
+        assert res["paging"]["cursors"]["prev"] is None
+        assert res["paging"]["cursors"]["next"] == 11
+        assert res["paging"]["has_prev"] is False
+        assert res["paging"]["has_next"] is True
 
-        for repo, res in zip(repos, res_list):
-            assert repo.id == res["id"]
-            assert repo.created_at == res["created_at"]
-            assert repo.updated_at == res["updated_at"]
-            assert repo.title == res["title"]
-            assert repo.description == res["description"]
-            assert repo.user_id == res["user_id"]
+        for repo, repo_for_test in zip(repos[-1::-1], repos_for_test):
+            assert repo.id == repo_for_test["id"]
+            assert repo.created_at == repo_for_test["created_at"]
+            assert repo.updated_at == repo_for_test["updated_at"]
+            assert repo.title == repo_for_test["title"]
+            assert repo.description == repo_for_test["description"]
+            assert repo.user_id == repo_for_test["user_id"]
+
+    @pytest.mark.asyncio
+    async def test_get_todo_repos_for_pagination(self, async_session: AsyncSession):
+        # GIVEN
+        # user_id = random.choice(range(1, 100))  # TODO
+        page_size = 10
+        repos = helpers.create_todo_repos(n=20)
+        async_session.add_all(repos)
+        await async_session.commit()
+
+        # WHEN
+        repository = TodoRepoRepository(async_session)
+        res = await TodoRepoService.get_todo_repos(user_id=0, cursor=None, page_size=page_size, repository=repository)
+
+        # THEN
+        assert res
+        assert (data := res["data"])
+        assert res["paging"]
+        assert res["paging"]["cursors"]
+        assert res["paging"]["cursors"]["prev"] is None
+        assert res["paging"]["cursors"]["next"] == 11
+        assert res["paging"]["has_prev"] is False
+        assert res["paging"]["has_next"] is True
+
+        assert len(data) == page_size
+        assert data[0]["id"] == 20
+        assert data[-1]["id"] == 11
+
+        # WHEN
+        next_cursor = res["paging"]["cursors"]["next"]
+        repository = TodoRepoRepository(async_session)
+        res = await TodoRepoService.get_todo_repos(
+            user_id=0, cursor=next_cursor, page_size=page_size, repository=repository
+        )
+
+        # THEN
+        assert res
+        assert (data := res["data"])
+        assert res["paging"]
+        assert res["paging"]["cursors"]
+        assert res["paging"]["cursors"]["prev"] is None
+        assert res["paging"]["cursors"]["next"] is None
+        assert res["paging"]["has_prev"] is True
+        assert res["paging"]["has_next"] is False
+
+        assert len(data) == page_size
+        assert data[0]["id"] == 10
+        assert data[-1]["id"] == 1
+
+        # WHEN
+        prev_cursor = res["paging"]["cursors"]["prev"]
+        repository = TodoRepoRepository(async_session)
+        res = await TodoRepoService.get_todo_repos(
+            user_id=0, cursor=prev_cursor, page_size=page_size, repository=repository
+        )
+
+        # THEN
+        assert res
+        assert (data := res["data"])
+        assert res["paging"]
+        assert res["paging"]["cursors"]
+        assert res["paging"]["cursors"]["prev"] is None
+        assert res["paging"]["cursors"]["next"] == 11
+        assert res["paging"]["has_prev"] is False
+        assert res["paging"]["has_next"] is True
+
+        assert len(data) == page_size
+        assert data[0]["id"] == 20
+        assert data[-1]["id"] == 11
 
 
 class TestDailyTodo:
@@ -325,7 +404,7 @@ class TestDailyTodo:
         daily_todo = helpers.create_daily_todo(todo_repo=todo_repo, date=date)
         async_session.add_all([todo_repo, daily_todo])
         await async_session.commit()
-        
+
         daily_todo_task_id = helpers.ID_MAX_LIMIT
         content = "updated content"
 
@@ -348,7 +427,7 @@ class TestDailyTodo:
         await async_session.commit()
 
         task_before_update = daily_todo_task.dict()
-        is_completed = not(daily_todo_task.is_completed)
+        is_completed = not (daily_todo_task.is_completed)
 
         # WHEN
         repository = DailyTodoRepository(async_session)
@@ -384,14 +463,16 @@ class TestDailyTodo:
             )
 
     @pytest.mark.asyncio
-    async def test_update_daily_todo_task_for_is_completed_if_there_is_no_daily_todo_task(self, async_session: AsyncSession):
+    async def test_update_daily_todo_task_for_is_completed_if_there_is_no_daily_todo_task(
+        self, async_session: AsyncSession
+    ):
         # GIVEN
         date = helpers.get_random_date()
         todo_repo = helpers.create_todo_repo()
         daily_todo = helpers.create_daily_todo(todo_repo=todo_repo, date=date)
         async_session.add_all([todo_repo, daily_todo])
         await async_session.commit()
-        
+
         daily_todo_task_id = helpers.ID_MAX_LIMIT
         is_completed = helpers.fake.boolean()
 
