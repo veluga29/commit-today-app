@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Generic, TypeVar, Optional
+from typing import Generic, TypeVar, Optional, Literal
 
 
 DT = TypeVar("DT")
@@ -9,6 +9,12 @@ class Response(BaseModel, Generic[DT]):
     ok: bool
     message: str
     data: DT
+
+
+class ErrorResponse(Response):
+    ok: Literal[False]
+    message: str
+    data: None
 
 
 class Cursors(BaseModel):

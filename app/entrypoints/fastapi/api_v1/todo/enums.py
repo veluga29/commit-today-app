@@ -5,3 +5,4 @@ class ResponseMessage(str, Enum):
     SUCCESS = "Request Success"
     FAIL = "Request Fail"
     CREATE_SUCCESS = "Create Successfully"
+    UPDATE_SUCCESS = "Update Successfully"

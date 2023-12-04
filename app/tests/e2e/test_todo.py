@@ -60,7 +60,10 @@ class TestTodoRepo:
 
         # THEN
         assert response.status_code == HTTPStatus.OK
-        repo_for_test = response.json()
+        res = response.json()
+        assert res["ok"]
+        assert res["message"] == api_enums.ResponseMessage.UPDATE_SUCCESS
+        assert (repo_for_test := res["data"])
 
         assert repo_before_update.id == repo_for_test["id"]
         assert repo_before_update.created_at == parse(repo_for_test["created_at"])
@@ -84,6 +87,10 @@ class TestTodoRepo:
 
         # THEN
         assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
+        res = response.json()
+        assert res["ok"] is False
+        assert res["message"]
+        assert res["data"] is None
 
     @pytest.mark.asyncio
     async def test_update_todo_repo_if_repo_does_not_exist(self, testing_app):
@@ -99,6 +106,10 @@ class TestTodoRepo:
 
         # THEN
         assert response.status_code == HTTPStatus.NOT_FOUND
+        res = response.json()
+        assert res["ok"] is False
+        assert res["message"]
+        assert res["data"] is None
 
     @pytest.mark.asyncio
     async def test_get_todo_repos(self, testing_app, async_session: AsyncSession):

@@ -4,7 +4,7 @@ from fastapi_restful.cbv import cbv
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.entrypoints.fastapi.api_v1.todo import in_schemas, out_schemas
-from app.entrypoints.fastapi.api_v1 import schemas as general_schemas
+from app.entrypoints.fastapi.api_v1 import schemas as general_schemas, examples
 from app.entrypoints.fastapi.api_v1.todo import enums
 from app.service.todo.handlers import TodoRepoService, DailyTodoService
 from app.service import exceptions
@@ -29,19 +29,25 @@ class TodoRepo:
             ok=True, message=enums.ResponseMessage.CREATE_SUCCESS, data=out_schemas.TodoRepoOut(**res)
         )
 
-    @router.patch("/todo-repos/{todo_repo_id}", status_code=status.HTTP_200_OK)
+    @router.patch(
+        "/todo-repos/{todo_repo_id}",
+        status_code=status.HTTP_200_OK,
+        responses=examples.get_error_responses([status.HTTP_404_NOT_FOUND]),
+    )
     async def update_todo_repo(
         self, todo_repo_id: int = Path(...), update_in: in_schemas.TodoRepoUpdateIn = Body(...)
-    ) -> out_schemas.TodoRepoOut:
+    ) -> out_schemas.TodoRepoResponse:
         try:
             repository: TodoRepoRepository = TodoRepoRepository(self.session)
             res = await self.todo_service.update_todo_repo(
                 todo_repo_id, update_in.title, update_in.description, repository=repository
             )
         except exceptions.TodoRepoNotFound as e:
-            raise HTTPException(status_code=404, detail=str(e))
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
-        return out_schemas.TodoRepoOut(**res)
+        return out_schemas.TodoRepoResponse(
+            ok=True, message=enums.ResponseMessage.UPDATE_SUCCESS, data=out_schemas.TodoRepoOut(**res)
+        )
 
     @router.get("/todo-repos", status_code=status.HTTP_200_OK)
     async def get_todo_repos(
