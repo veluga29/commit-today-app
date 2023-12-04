@@ -16,7 +16,7 @@ app.include_router(api_v1_router)
 
 
 @app.exception_handler(StarletteHTTPException)
-async def http_exception_handler(request: Request, exc: HTTPException):
+async def http_exception_handler(request: Request, exc: HTTPException) -> JSONResponse:
     return JSONResponse(
         status_code=exc.status_code,
         content=schemas.Response(ok=False, message=str(exc.detail), data=None).model_dump(),
@@ -27,7 +27,7 @@ async def http_exception_handler(request: Request, exc: HTTPException):
 async def validation_exception_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
     return JSONResponse(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-        content=schemas.Response(ok=False, message=str(exc), data=exc.errors()).model_dump(),
+        content=schemas.Response(ok=False, message=str(exc), data=None).model_dump(),
     )
 
 
