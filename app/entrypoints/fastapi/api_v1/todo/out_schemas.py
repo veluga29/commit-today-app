@@ -38,3 +38,7 @@ class TodoRepoPaginationResponse(PaginationResponse):
 
 class DailyTodoResponse(Response):
     data: DailyTodoOut
+
+
+class DailyTodoTaskResponse(Response):
+    data: DailyTodoTaskOut

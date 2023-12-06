@@ -114,10 +114,14 @@ class DailyTodo:
             ok=True, message=enums.ResponseMessage.SUCCESS, data=out_schemas.DailyTodoOut(**res)
         )
 
-    @router.post("/todo-repos/{todo_repo_id}/daily-todos/{date}/daily-todo-tasks", status_code=status.HTTP_201_CREATED)
+    @router.post(
+        "/todo-repos/{todo_repo_id}/daily-todos/{date}/daily-todo-tasks",
+        status_code=status.HTTP_201_CREATED,
+        responses=examples.get_error_responses([status.HTTP_404_NOT_FOUND]),
+    )
     async def create_daily_todo_task(
         self, todo_repo_id: int = Path(), date: datetime.date = Path(), content: str = Body(embed=True)
-    ) -> out_schemas.DailyTodoTaskOut:
+    ) -> out_schemas.DailyTodoTaskResponse:
         try:
             repository: DailyTodoRepository = DailyTodoRepository(self.session)
             res = await self.daily_todo_service.create_daily_todo_task(
@@ -129,7 +133,9 @@ class DailyTodo:
         except exceptions.DailyTodoNotFound as e:
             raise HTTPException(status_code=404, detail=str(e))
 
-        return out_schemas.DailyTodoTaskOut(**res)
+        return out_schemas.DailyTodoTaskResponse(
+            ok=True, message=enums.ResponseMessage.CREATE_SUCCESS, data=out_schemas.DailyTodoTaskOut(**res)
+        )
 
     @router.get("/todo-repos/{todo_repo_id}/daily-todos/{date}/daily-todo-tasks", status_code=status.HTTP_200_OK)
     async def get_daily_todo_tasks(
