@@ -35,7 +35,7 @@ class Auth:
                 repository=repository,
             )
         except exceptions.UserAlreadyExists as e:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+            raise HTTPException(status_code=400, detail=str(e))
 
         return out_schemas.UserResponse(
             ok=True, message=enums.ResponseMessage.CREATE_SUCCESS, data=out_schemas.UserOut(**res)
