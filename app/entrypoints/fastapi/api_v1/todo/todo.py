@@ -66,10 +66,14 @@ class DailyTodo:
     session: AsyncSession = Depends(get_session)
     daily_todo_service: DailyTodoService = Depends()
 
-    @router.post("/todo-repos/{todo_repo_id}/daily-todos", status_code=status.HTTP_201_CREATED)
+    @router.post(
+        "/todo-repos/{todo_repo_id}/daily-todos",
+        status_code=status.HTTP_201_CREATED,
+        responses=examples.get_error_responses([status.HTTP_404_NOT_FOUND, status.HTTP_400_BAD_REQUEST]),
+    )
     async def create_daily_todo(
         self, todo_repo_id: int = Path(), date: datetime.date = Body(embed=True)
-    ) -> out_schemas.DailyTodoOut:
+    ) -> out_schemas.DailyTodoResponse:
         try:
             todo_repo_repository: TodoRepoRepository = TodoRepoRepository(self.session)
             daily_todo_repository: DailyTodoRepository = DailyTodoRepository(self.session)
@@ -84,7 +88,9 @@ class DailyTodo:
         except exceptions.DailyTodoAlreadyExists as e:
             raise HTTPException(status_code=400, detail=str(e))
 
-        return out_schemas.DailyTodoOut(**res)
+        return out_schemas.DailyTodoResponse(
+            ok=True, message=enums.ResponseMessage.CREATE_SUCCESS, data=out_schemas.DailyTodoOut(**res)
+        )
 
     @router.get("/todo-repos/{todo_repo_id}/daily-todos/{date}", status_code=status.HTTP_200_OK)
     async def get_daily_todo(

@@ -34,3 +34,7 @@ class TodoRepoResponse(Response):
 
 class TodoRepoPaginationResponse(PaginationResponse):
     data: list[TodoRepoOut]
+
+
+class DailyTodoResponse(Response):
+    data: DailyTodoOut

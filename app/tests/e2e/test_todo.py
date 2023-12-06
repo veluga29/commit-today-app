@@ -250,7 +250,10 @@ class TestDailyTodo:
 
         # THEN
         assert response.status_code == HTTPStatus.CREATED
-        repo_for_test = response.json()
+        res = response.json()
+        assert res["ok"]
+        assert res["message"] == api_enums.ResponseMessage.CREATE_SUCCESS
+        assert (repo_for_test := res["data"])
 
         assert repo_for_test["todo_repo_id"]
         assert repo_for_test["date"]
@@ -269,6 +272,10 @@ class TestDailyTodo:
 
         # THEN
         assert response.status_code == HTTPStatus.NOT_FOUND
+        res = response.json()
+        assert res["ok"] is False
+        assert res["message"]
+        assert res["data"] is None
 
     @pytest.mark.asyncio
     async def test_create_daily_todo_if_daily_todo_already_exists(self, testing_app, async_session: AsyncSession):
@@ -289,6 +296,10 @@ class TestDailyTodo:
 
         # THEN
         assert response.status_code == HTTPStatus.BAD_REQUEST
+        res = response.json()
+        assert res["ok"] is False
+        assert res["message"]
+        assert res["data"] is None
 
     @pytest.mark.asyncio
     async def test_get_daily_todo(self, testing_app, async_session: AsyncSession):
