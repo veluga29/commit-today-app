@@ -3,6 +3,7 @@ from fastapi_restful.cbv import cbv
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.adapters.auth.repository import UserRepository
+from app.entrypoints.fastapi.api_v1 import enums, examples
 from app.entrypoints.fastapi.api_v1.auth import in_schemas, out_schemas
 from app.service.auth.handlers import UserService
 from app.db import get_session
@@ -17,8 +18,12 @@ class Auth:
     session: AsyncSession = Depends(get_session)
     user_service: UserService = Depends()
 
-    @router.post("/signup", status_code=201)
-    async def user_signup(self, sign_up_in: in_schemas.UserSignUpIn) -> out_schemas.UserOut:
+    @router.post(
+        "/signup",
+        status_code=status.HTTP_201_CREATED,
+        responses=examples.get_error_responses([status.HTTP_400_BAD_REQUEST]),
+    )
+    async def user_signup(self, sign_up_in: in_schemas.UserSignUpIn) -> out_schemas.UserResponse:
         try:
             repository: UserRepository = UserRepository(self.session)
             res = await self.user_service.signup_user(
@@ -30,9 +35,11 @@ class Auth:
                 repository=repository,
             )
         except exceptions.UserAlreadyExists as e:
-            raise HTTPException(status_code=400, detail=str(e))
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
-        return out_schemas.UserOut(**res)
+        return out_schemas.UserResponse(
+            ok=True, message=enums.ResponseMessage.CREATE_SUCCESS, data=out_schemas.UserOut(**res)
+        )
 
     @router.post("/login", status_code=200)
     async def user_login(self, login_in: in_schemas.UserLoginIn, response: Response):
