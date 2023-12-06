@@ -43,7 +43,7 @@ class TodoRepo:
                 todo_repo_id, update_in.title, update_in.description, repository=repository
             )
         except exceptions.TodoRepoNotFound as e:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+            raise HTTPException(status_code=404, detail=str(e))
 
         return out_schemas.TodoRepoResponse(
             ok=True, message=enums.ResponseMessage.UPDATE_SUCCESS, data=out_schemas.TodoRepoOut(**res)
