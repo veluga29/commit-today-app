@@ -556,7 +556,10 @@ class TestDailyTodo:
 
         # THEN
         assert response.status_code == HTTPStatus.OK
-        daily_todo_task_for_test = response.json()
+        res = response.json()
+        assert res["ok"]
+        assert res["message"] == api_enums.ResponseMessage.UPDATE_SUCCESS
+        assert (daily_todo_task_for_test := res["data"])
 
         assert task_before_update["id"] == daily_todo_task_for_test["id"]
         assert task_before_update["created_at"] == parse(daily_todo_task_for_test["created_at"])
@@ -588,6 +591,10 @@ class TestDailyTodo:
 
         # THEN
         assert response.status_code == HTTPStatus.NOT_FOUND
+        res = response.json()
+        assert res["ok"] is False
+        assert res["message"]
+        assert res["data"] is None
 
     @pytest.mark.asyncio
     async def test_update_daily_todo_task_for_is_completed_if_there_is_no_daily_todo_task(
@@ -617,3 +624,7 @@ class TestDailyTodo:
 
         # THEN
         assert response.status_code == HTTPStatus.NOT_FOUND
+        res = response.json()
+        assert res["ok"] is False
+        assert res["message"]
+        assert res["data"] is None

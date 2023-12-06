@@ -185,6 +185,7 @@ class DailyTodo:
     @router.patch(
         "/todo-repos/{todo_repo_id}/daily-todos/{date}/daily-todo-tasks/{daily_todo_task_id}/is-completed",
         status_code=status.HTTP_200_OK,
+        responses=examples.get_error_responses([status.HTTP_404_NOT_FOUND]),
     )
     async def update_daily_todo_task_for_is_completed(
         self,
@@ -192,7 +193,7 @@ class DailyTodo:
         date: datetime.date = Path(),
         daily_todo_task_id: int = Path(),
         is_completed: bool = Body(embed=True),
-    ) -> out_schemas.DailyTodoTaskOut:
+    ) -> out_schemas.DailyTodoTaskResponse:
         try:
             repository: DailyTodoRepository = DailyTodoRepository(self.session)
             res = await self.daily_todo_service.update_daily_todo_task_for_is_completed(
@@ -207,4 +208,6 @@ class DailyTodo:
         except exceptions.DailyTodoTaskNotFound as e:
             raise HTTPException(status_code=404, detail=str(e))
 
-        return out_schemas.DailyTodoTaskOut(**res)
+        return out_schemas.DailyTodoTaskResponse(
+            ok=True, message=enums.ResponseMessage.UPDATE_SUCCESS, data=out_schemas.DailyTodoTaskOut(**res)
+        )
