@@ -42,3 +42,7 @@ class DailyTodoResponse(Response):
 
 class DailyTodoTaskResponse(Response):
     data: DailyTodoTaskOut
+
+
+class DailyTodoTasksResponse(Response):
+    data: list[DailyTodoTaskOut]

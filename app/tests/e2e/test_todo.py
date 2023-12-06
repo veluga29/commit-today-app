@@ -396,7 +396,10 @@ class TestDailyTodo:
 
         # THEN
         assert response.status_code == HTTPStatus.OK
-        daily_todo_tasks_for_test = response.json()
+        res = response.json()
+        assert res["ok"]
+        assert res["message"] == api_enums.ResponseMessage.SUCCESS
+        assert (daily_todo_tasks_for_test := res["data"])
 
         for daily_todo_task, daily_todo_task_for_test in zip(daily_todo_tasks, daily_todo_tasks_for_test):
             assert daily_todo_task.id == daily_todo_task_for_test["id"]
@@ -421,9 +424,10 @@ class TestDailyTodo:
 
         # THEN
         assert response.status_code == HTTPStatus.OK
-        daily_todo_tasks_for_test = response.json()
-
-        assert daily_todo_tasks_for_test == []
+        res = response.json()
+        assert res["ok"]
+        assert res["message"] == api_enums.ResponseMessage.SUCCESS
+        assert res["data"] == []
 
     @pytest.mark.asyncio
     async def test_update_daily_todo_task_for_content(self, testing_app, async_session: AsyncSession):
