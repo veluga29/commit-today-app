@@ -9,7 +9,7 @@ from dateutil.parser import parse
 
 from app.tests import helpers
 from app.domain.todo import models
-from app.entrypoints.fastapi.api_v1.todo import enums as api_enums
+from app.entrypoints.fastapi.api_v1 import enums as api_enums
 from app.tests import utils
 
 

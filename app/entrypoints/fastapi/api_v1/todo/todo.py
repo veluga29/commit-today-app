@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.entrypoints.fastapi.api_v1.todo import in_schemas, out_schemas
 from app.entrypoints.fastapi.api_v1 import schemas as general_schemas, examples
-from app.entrypoints.fastapi.api_v1.todo import enums
+from app.entrypoints.fastapi.api_v1 import enums
 from app.service.todo.handlers import TodoRepoService, DailyTodoService
 from app.service import exceptions
 from app.adapters.todo.repository import TodoRepoRepository, DailyTodoRepository
