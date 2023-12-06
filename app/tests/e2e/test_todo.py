@@ -318,7 +318,10 @@ class TestDailyTodo:
 
         # THEN
         assert response.status_code == HTTPStatus.OK
-        repo_for_test = response.json()
+        res = response.json()
+        assert res["ok"]
+        assert res["message"] == api_enums.ResponseMessage.SUCCESS
+        assert (repo_for_test := res["data"])
 
         assert daily_todo.todo_repo_id == repo_for_test["todo_repo_id"]
         assert daily_todo.date == parse(repo_for_test["date"]).date()
