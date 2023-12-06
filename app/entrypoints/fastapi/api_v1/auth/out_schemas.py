@@ -12,3 +12,7 @@ class UserOut(BaseModel):
 
 class UserResponse(Response):
     data: UserOut
+
+
+class LoginResponse(Response):
+    data: None

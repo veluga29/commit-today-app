@@ -41,17 +41,22 @@ class Auth:
             ok=True, message=enums.ResponseMessage.CREATE_SUCCESS, data=out_schemas.UserOut(**res)
         )
 
-    @router.post("/login", status_code=200)
+    @router.post(
+        "/login",
+        status_code=status.HTTP_200_OK,
+        responses=examples.get_error_responses([status.HTTP_401_UNAUTHORIZED, status.HTTP_404_NOT_FOUND]),
+    )
     async def user_login(self, login_in: in_schemas.UserLoginIn, response: Response):
         try:
             repository: UserRepository = UserRepository(self.session)
             res = await self.user_service.login_user(login_in.email, login_in.password, repository=repository)
+            response.set_cookie(key="access_token", value=res["access_token"], httponly=True, secure=True)
         except exceptions.UserNotFound as e:
             raise HTTPException(status_code=404, detail=str(e))
         except exceptions.PasswordNotMatch as e:
             raise HTTPException(status_code=401, detail=str(e))
 
-        response.set_cookie(key="access_token", value=res["access_token"], httponly=True, secure=True)
+        return out_schemas.LoginResponse(ok=True, message=enums.ResponseMessage.LOGIN_SUCCESS, data=None)
 
     # @router.post("/log-out", status_code=200)
     # async def user_log_out():

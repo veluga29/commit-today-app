@@ -6,3 +6,4 @@ class ResponseMessage(str, Enum):
     FAIL = "Request Fail"
     CREATE_SUCCESS = "Create Successfully"
     UPDATE_SUCCESS = "Update Successfully"
+    LOGIN_SUCCESS = "Login Successfully"
