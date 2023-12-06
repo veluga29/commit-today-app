@@ -3,7 +3,7 @@ import datetime
 from app.domain.todo import models as todo_models
 from app.adapters.todo.repository import TodoRepoRepository, DailyTodoRepository
 from app.service import exceptions
-from app.service.utils import CursorPagination
+from app.utils.pagination import CursorPagination
 
 
 class TodoRepoService:
