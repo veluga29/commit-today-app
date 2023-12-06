@@ -11,7 +11,7 @@ class Response(BaseModel, Generic[DT]):
     data: DT
 
 
-class ErrorResponse(Response):
+class ErrorResponse(BaseModel):
     ok: Literal[False]
     message: str
     data: None
