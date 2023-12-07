@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, HTTPAuthorizationCredentials, HTTPBearer
 from jose import jwt, JWTError
+from typing import Any
 
 from app import settings
 
@@ -23,10 +24,13 @@ class JWTAuthorizer:
         first_name: str
 
     @classmethod
-    def create(cls, email: str, expires_delta: int = EXPIRES_DELTA) -> str:
+    def create(cls, user: dict[str, Any], expires_delta: int = EXPIRES_DELTA) -> str:
         payload = {
-            "sub": email,
+            "sub": user["email"],
             "exp": datetime.utcnow() + timedelta(minutes=expires_delta),
+            "username": user["username"],
+            "last_name": user["last_name"],
+            "first_name": user["first_name"],
         }
         return jwt.encode(payload, cls.SECRET_KEY, algorithm=cls.ALGORITHM)
 

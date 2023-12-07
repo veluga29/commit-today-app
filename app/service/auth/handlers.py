@@ -27,4 +27,4 @@ class UserService:
         if not user.verify_password(password):
             raise exceptions.PasswordNotMatch(f"Not Authorized: Input password does not match")
 
-        return dict(access_token=JWTAuthorizer.create(user.email))
+        return dict(access_token=JWTAuthorizer.create(user.dict()))
