@@ -3,6 +3,7 @@ from fastapi import APIRouter, status, Depends, Path, Body, HTTPException
 from fastapi_restful.cbv import cbv
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.entrypoints.fastapi.security import JWTAuthorizer
 from app.entrypoints.fastapi.api_v1.todo import in_schemas, out_schemas
 from app.entrypoints.fastapi.api_v1 import schemas as general_schemas, examples
 from app.entrypoints.fastapi.api_v1 import enums
@@ -19,6 +20,7 @@ router = APIRouter()
 class TodoRepo:
     session: AsyncSession = Depends(get_session)
     todo_service: TodoRepoService = Depends()
+    user_info: JWTAuthorizer.UserInfo = Depends(JWTAuthorizer.get_user_info)
 
     @router.post("/todo-repos", status_code=status.HTTP_201_CREATED)
     async def create_todo_repo(self, create_in: in_schemas.TodoRepoCreateIn) -> out_schemas.TodoRepoResponse:

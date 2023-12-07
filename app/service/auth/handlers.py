@@ -1,7 +1,7 @@
 from app.domain.auth import models as auth_models
 from app.adapters.auth.repository import UserRepository
 from app.service import exceptions
-from app.security import JWTAuthorizer
+from app.entrypoints.fastapi.security import JWTAuthorizer
 
 
 class UserService:
@@ -11,7 +11,7 @@ class UserService:
     ) -> dict:
         if await repository.get_user_by_email(email):
             raise exceptions.UserAlreadyExists(f"User with email ({email}) already exists")
-        
+
         user = auth_models.User(
             email=email, password=password, username=user_name, last_name=last_name, first_name=first_name
         )
@@ -26,5 +26,5 @@ class UserService:
             raise exceptions.UserNotFound(f"User with email ({email}) not found")
         if not user.verify_password(password):
             raise exceptions.PasswordNotMatch(f"Not Authorized: Input password does not match")
-        
+
         return dict(access_token=JWTAuthorizer.create(user.email))
