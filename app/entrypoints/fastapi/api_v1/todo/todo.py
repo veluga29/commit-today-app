@@ -67,6 +67,7 @@ class TodoRepo:
 class DailyTodo:
     session: AsyncSession = Depends(get_session)
     daily_todo_service: DailyTodoService = Depends()
+    user_info: JWTAuthorizer.UserInfo = Depends(JWTAuthorizer.get_user_info)
 
     @router.post(
         "/todo-repos/{todo_repo_id}/daily-todos",
