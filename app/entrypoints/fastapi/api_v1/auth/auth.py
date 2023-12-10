@@ -6,7 +6,7 @@ from typing import Annotated
 from app.adapters.auth.repository import UserRepository
 from app.entrypoints.fastapi.api_v1 import enums, examples
 from app.entrypoints.fastapi.api_v1.auth import in_schemas, out_schemas
-from app.entrypoints.fastapi.security import OAuth2PasswordRequestFormWithValidation
+from app.entrypoints.fastapi.security import OAuth2PasswordRequestFormWithValidation, JWTAuthorizer
 from app.service.auth.handlers import UserService
 from app.db import get_session
 from app.service import exceptions
@@ -63,6 +63,9 @@ class Auth:
 
         return out_schemas.LoginResponse(ok=True, message=enums.ResponseMessage.LOGIN_SUCCESS, data=None)
 
-    # @router.post("/log-out", status_code=200)
-    # async def user_log_out():
-    #     ...
+    @router.post("/logout", status_code=status.HTTP_200_OK, dependencies=[Depends(JWTAuthorizer.get_user_info)])
+    async def user_logout(self, response: Response) -> out_schemas.LogoutResponse:
+        response.set_cookie(key="access_token", expires=0, max_age=0, httponly=True, secure=True)
+        response.set_cookie(key="refresh_token", expires=0, max_age=0, httponly=True, secure=True)
+
+        return out_schemas.LogoutResponse(ok=True, message=enums.ResponseMessage.LOGOUT_SUCCESS, data=None)

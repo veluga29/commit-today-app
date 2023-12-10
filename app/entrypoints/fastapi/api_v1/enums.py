@@ -7,3 +7,4 @@ class ResponseMessage(str, Enum):
     CREATE_SUCCESS = "Create Successfully"
     UPDATE_SUCCESS = "Update Successfully"
     LOGIN_SUCCESS = "Login Successfully"
+    LOGOUT_SUCCESS = "Logout Successfully"

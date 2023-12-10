@@ -16,3 +16,7 @@ class UserResponse(Response):
 
 class LoginResponse(Response):
     data: None
+
+
+class LogoutResponse(Response):
+    data: None
