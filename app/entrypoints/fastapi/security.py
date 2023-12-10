@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 from fastapi import Depends, HTTPException, status, Request, Form
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi.security.utils import get_authorization_scheme_param
 from jose import jwt, JWTError
 from typing import Any, Annotated
 from email_validator import validate_email, EmailNotValidError, EmailSyntaxError, EmailUndeliverableError
@@ -33,7 +34,7 @@ class OAuth2PasswordRequestFormWithValidation(OAuth2PasswordRequestForm):
         self.client_secret = client_secret
 
 
-class JWTCookieAuth(OAuth2PasswordBearer):
+class JWTFromAuthorizationOrCookie(OAuth2PasswordBearer):
     def __init__(
         self,
         tokenUrl: str,
@@ -51,6 +52,25 @@ class JWTCookieAuth(OAuth2PasswordBearer):
         )
 
     async def __call__(self, request: Request) -> str | None:
+        return await self.get_access_token_from_authorization(request) or await self.get_access_token_from_cookie(
+            request
+        )
+
+    async def get_access_token_from_authorization(self, request: Request) -> str | None:
+        authorization = request.headers.get("Authorization")
+        scheme, param = get_authorization_scheme_param(authorization)
+        if not authorization or scheme.lower() != "bearer" or param == "undefined":
+            if self.auto_error:
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Not authenticated",
+                    headers={"WWW-Authenticate": "Bearer"},
+                )
+            else:
+                return None
+        return param
+
+    async def get_access_token_from_cookie(self, request: Request) -> str | None:
         if (access_token := request.cookies.get("access_token")) is None:
             if self.auto_error:
                 raise HTTPException(
@@ -60,7 +80,6 @@ class JWTCookieAuth(OAuth2PasswordBearer):
                 )
             else:
                 return None
-
         return access_token
 
 
@@ -68,7 +87,7 @@ class JWTAuthorizer:
     SECRET_KEY = settings.AUTH_SETTINGS.JWT_SECRET_KEY
     ALGORITHM = settings.AUTH_SETTINGS.JWT_ALGORITHM
     EXPIRES_DELTA = settings.AUTH_SETTINGS.JWT_EXPIRES_DELTA
-    JWT_COOKIE_AUTH = JWTCookieAuth(tokenUrl="api/v1/external/auth/login", auto_error=False)
+    JWT_COOKIE_AUTH = JWTFromAuthorizationOrCookie(tokenUrl="api/v1/external/auth/login", auto_error=False)
 
     class CredentialsException(Exception):
         ...
