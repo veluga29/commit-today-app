@@ -1,3 +1,4 @@
+import uuid
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from fastapi import Depends, HTTPException, status, Request, Form
@@ -87,6 +88,7 @@ class JWTAuthorizer:
     SECRET_KEY = settings.AUTH_SETTINGS.JWT_SECRET_KEY
     ALGORITHM = settings.AUTH_SETTINGS.JWT_ALGORITHM
     EXPIRES_DELTA = settings.AUTH_SETTINGS.JWT_EXPIRES_DELTA
+    REFRESH_EXPIRES_DELTA = settings.AUTH_SETTINGS.JWT_REFRESH_EXPIRES_DELTA
     JWT_COOKIE_AUTH = JWTFromAuthorizationOrCookie(tokenUrl="api/v1/external/auth/login", auto_error=False)
 
     class CredentialsException(Exception):
@@ -100,14 +102,17 @@ class JWTAuthorizer:
         first_name: str
 
     @classmethod
-    def create(cls, user: dict[str, Any], expires_delta: int = EXPIRES_DELTA) -> str:
-        payload = {
-            "sub": user["email"],
-            "exp": datetime.utcnow() + timedelta(minutes=expires_delta),
-            "username": user["username"],
-            "last_name": user["last_name"],
-            "first_name": user["first_name"],
-        }
+    def create(cls, user: dict[str, Any], is_refresh: bool = False) -> str:
+        expires_delta = cls.REFRESH_EXPIRES_DELTA if is_refresh else cls.EXPIRES_DELTA
+        payload = dict(
+            sub=user["email"],
+            exp=datetime.utcnow() + timedelta(minutes=expires_delta),
+            iat=datetime.utcnow(),
+            jti=uuid.uuid4().hex,
+        )
+        if is_refresh is False:
+            payload |= dict(username=user["username"], last_name=user["last_name"], first_name=user["first_name"])
+
         return jwt.encode(payload, cls.SECRET_KEY, algorithm=cls.ALGORITHM)
 
     @classmethod

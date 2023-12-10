@@ -50,6 +50,7 @@ class AuthSettings(BaseSettings):
     JWT_SECRET_KEY: str = ""
     JWT_ALGORITHM: str = ""
     JWT_EXPIRES_DELTA: int = 0
+    JWT_REFRESH_EXPIRES_DELTA: int = 0
 
 
 POSTGRES_SETTINGS = PostgresSettings()
