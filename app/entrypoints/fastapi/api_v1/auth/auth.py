@@ -55,6 +55,7 @@ class Auth:
             repository: UserRepository = UserRepository(self.session)
             res = await self.user_service.login_user(login_in.email, login_in.password, repository=repository)
             response.set_cookie(key="access_token", value=res["access_token"], httponly=True, secure=True)
+            response.set_cookie(key="refresh_token", value=res["refresh_token"], httponly=True, secure=True)
         except exceptions.UserNotFound as e:
             raise HTTPException(status_code=404, detail=str(e))
         except exceptions.PasswordNotMatch as e:
