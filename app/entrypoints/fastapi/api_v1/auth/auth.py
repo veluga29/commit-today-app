@@ -1,10 +1,12 @@
 from fastapi import APIRouter, status, Depends, Path, Body, HTTPException, Response
 from fastapi_restful.cbv import cbv
 from sqlalchemy.ext.asyncio import AsyncSession
+from typing import Annotated
 
 from app.adapters.auth.repository import UserRepository
 from app.entrypoints.fastapi.api_v1 import enums, examples
 from app.entrypoints.fastapi.api_v1.auth import in_schemas, out_schemas
+from app.entrypoints.fastapi.security import OAuth2PasswordRequestFormWithValidation
 from app.service.auth.handlers import UserService
 from app.db import get_session
 from app.service import exceptions
@@ -46,7 +48,9 @@ class Auth:
         status_code=status.HTTP_200_OK,
         responses=examples.get_error_responses([status.HTTP_401_UNAUTHORIZED, status.HTTP_404_NOT_FOUND]),
     )
-    async def user_login(self, login_in: in_schemas.UserLoginIn, response: Response):
+    async def user_login(
+        self, login_in: Annotated[OAuth2PasswordRequestFormWithValidation, Depends()], response: Response
+    ):
         try:
             repository: UserRepository = UserRepository(self.session)
             res = await self.user_service.login_user(login_in.email, login_in.password, repository=repository)
