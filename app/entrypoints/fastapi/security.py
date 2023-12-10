@@ -1,11 +1,36 @@
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from fastapi import Depends, HTTPException, status, Request
-from fastapi.security import OAuth2PasswordBearer
+from fastapi import Depends, HTTPException, status, Request, Form
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import jwt, JWTError
-from typing import Any
+from typing import Any, Annotated
+from email_validator import validate_email, EmailNotValidError, EmailSyntaxError, EmailUndeliverableError
 
 from app import settings
+
+
+class OAuth2PasswordRequestFormWithValidation(OAuth2PasswordRequestForm):
+    def __init__(
+        self,
+        *,
+        grant_type: Annotated[str | None, Form(pattern="password")] = None,
+        username: Annotated[str, Form()],
+        password: Annotated[str, Form()],
+        scope: Annotated[str, Form()] = "",
+        client_id: Annotated[str | None, Form()] = None,
+        client_secret: Annotated[str | None, Form()] = None,
+    ):
+        try:
+            validated_email = validate_email(username)
+        except (EmailNotValidError, EmailSyntaxError, EmailUndeliverableError):
+            raise HTTPException(status_code=422, detail="Invalid email")
+
+        self.grant_type = grant_type
+        self.email = validated_email.email
+        self.password = password
+        self.scopes = scope.split()
+        self.client_id = client_id
+        self.client_secret = client_secret
 
 
 class JWTCookieAuth(OAuth2PasswordBearer):
