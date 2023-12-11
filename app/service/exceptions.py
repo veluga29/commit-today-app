@@ -10,6 +10,10 @@ class PasswordNotMatch(Exception):
     ...
 
 
+class NoTokenExists(Exception):
+    ...
+
+
 class InvalidToken(Exception):
     ...
 

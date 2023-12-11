@@ -70,13 +70,19 @@ class Auth:
 
         return out_schemas.LogoutResponse(ok=True, message=enums.ResponseMessage.LOGOUT_SUCCESS, data=None)
 
-    @router.get("/login-refresh", status_code=status.HTTP_200_OK)
-    async def refresh_login(self, response: Response, refresh_token: str = Cookie(...)):
+    @router.get(
+        "/login-refresh",
+        status_code=status.HTTP_200_OK,
+        responses=examples.get_error_responses([status.HTTP_401_UNAUTHORIZED, status.HTTP_404_NOT_FOUND]),
+    )
+    async def refresh_login(self, response: Response, refresh_token: str | None = Cookie(None)):
         try:
             repository: UserRepository = UserRepository(self.session)
             res = await self.user_service.refresh_login(refresh_token=refresh_token, repository=repository)
             response.set_cookie(key="access_token", value=res["access_token"], httponly=True, secure=True)
             response.set_cookie(key="refresh_token", value=res["refresh_token"], httponly=True, secure=True)
+        except exceptions.NoTokenExists as e:
+            raise HTTPException(status_code=401, detail=str(e))
         except exceptions.InvalidToken as e:
             raise HTTPException(status_code=401, detail=str(e))
         except exceptions.UserNotFound as e:

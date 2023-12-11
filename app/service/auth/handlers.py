@@ -33,9 +33,13 @@ class UserService:
         )
 
     @staticmethod
-    async def refresh_login(refresh_token: str, *, repository: UserRepository) -> dict:
+    async def refresh_login(refresh_token: str | None, *, repository: UserRepository) -> dict:
+        if refresh_token is None:
+            raise exceptions.NoTokenExists(f"Refresh token doesn't exist")
+
         payload = JWTAuthorizer.decode(refresh_token, is_refresh=True)
         email = payload.get("sub")
+
         if not email:
             raise exceptions.InvalidToken(f"Refresh token is invalid")
         if (user := await repository.get_user_by_email(email)) is None:
