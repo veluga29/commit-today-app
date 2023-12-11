@@ -1,4 +1,4 @@
-from fastapi import APIRouter, status, Depends, Path, Body, HTTPException, Response
+from fastapi import APIRouter, status, Depends, Path, Body, HTTPException, Response, Cookie
 from fastapi_restful.cbv import cbv
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Annotated
@@ -69,3 +69,17 @@ class Auth:
         response.set_cookie(key="refresh_token", expires=0, max_age=0, httponly=True, secure=True)
 
         return out_schemas.LogoutResponse(ok=True, message=enums.ResponseMessage.LOGOUT_SUCCESS, data=None)
+
+    @router.get("/login-refresh", status_code=status.HTTP_200_OK)
+    async def refresh_login(self, response: Response, refresh_token: str = Cookie(...)):
+        try:
+            repository: UserRepository = UserRepository(self.session)
+            res = await self.user_service.refresh_login(refresh_token=refresh_token, repository=repository)
+            response.set_cookie(key="access_token", value=res["access_token"], httponly=True, secure=True)
+            response.set_cookie(key="refresh_token", value=res["refresh_token"], httponly=True, secure=True)
+        except exceptions.InvalidToken as e:
+            raise HTTPException(status_code=401, detail=str(e))
+        except exceptions.UserNotFound as e:
+            raise HTTPException(status_code=404, detail=str(e))
+
+        return out_schemas.LoginResponse(ok=True, message=enums.ResponseMessage.REFRESH_SUCCESS, data=None)

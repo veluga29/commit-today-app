@@ -31,3 +31,17 @@ class UserService:
             access_token=JWTAuthorizer.create(user.dict()),
             refresh_token=JWTAuthorizer.create(user.dict(), is_refresh=True),
         )
+
+    @staticmethod
+    async def refresh_login(refresh_token: str, *, repository: UserRepository) -> dict:
+        payload = JWTAuthorizer.decode(refresh_token, is_refresh=True)
+        email = payload.get("sub")
+        if not email:
+            raise exceptions.InvalidToken(f"Refresh token is invalid")
+        if (user := await repository.get_user_by_email(email)) is None:
+            raise exceptions.UserNotFound(f"User with email ({email}) not found")
+
+        return dict(
+            access_token=JWTAuthorizer.create(user.dict()),
+            refresh_token=JWTAuthorizer.create(user.dict(), is_refresh=True),
+        )

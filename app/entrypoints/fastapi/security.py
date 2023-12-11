@@ -86,6 +86,7 @@ class JWTFromAuthorizationOrCookie(OAuth2PasswordBearer):
 
 class JWTAuthorizer:
     SECRET_KEY = settings.AUTH_SETTINGS.JWT_SECRET_KEY
+    REFRESH_SECRET_KEY = settings.AUTH_SETTINGS.JWT_REFRESH_SECRET_KEY
     ALGORITHM = settings.AUTH_SETTINGS.JWT_ALGORITHM
     EXPIRES_DELTA = settings.AUTH_SETTINGS.JWT_EXPIRES_DELTA
     REFRESH_EXPIRES_DELTA = settings.AUTH_SETTINGS.JWT_REFRESH_EXPIRES_DELTA
@@ -112,19 +113,34 @@ class JWTAuthorizer:
         )
         if is_refresh is False:
             payload |= dict(username=user["username"], last_name=user["last_name"], first_name=user["first_name"])
+        secret_key = cls.REFRESH_SECRET_KEY if is_refresh else cls.SECRET_KEY
 
-        return jwt.encode(payload, cls.SECRET_KEY, algorithm=cls.ALGORITHM)
+        try:
+            return jwt.encode(payload, secret_key, algorithm=cls.ALGORITHM)
+        except JWTError:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="JWT Encode Failed",
+            )
 
     @classmethod
-    def decode(cls, access_token: str) -> dict:
-        return jwt.decode(access_token, cls.SECRET_KEY, algorithms=[cls.ALGORITHM])
+    def decode(cls, token: str, is_refresh: bool = False) -> dict[str, Any]:
+        secret_key = cls.REFRESH_SECRET_KEY if is_refresh else cls.SECRET_KEY
+
+        try:
+            return jwt.decode(token, secret_key, algorithms=[cls.ALGORITHM])
+        except JWTError:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid token. JWT Decode Failed",
+            )
 
     @classmethod
     async def get_user_info(cls, access_token: str | None = Depends(JWT_COOKIE_AUTH)):
         try:
             if access_token is None:
                 raise cls.CredentialsException
-            payload = jwt.decode(access_token, cls.SECRET_KEY, algorithms=[cls.ALGORITHM])
+            payload = cls.decode(access_token)
             email, username, last_name, first_name = (
                 payload.get("sub"),
                 payload.get("username"),

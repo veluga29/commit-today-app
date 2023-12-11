@@ -8,3 +8,4 @@ class ResponseMessage(str, Enum):
     UPDATE_SUCCESS = "Update Successfully"
     LOGIN_SUCCESS = "Login Successfully"
     LOGOUT_SUCCESS = "Logout Successfully"
+    REFRESH_SUCCESS = "Refresh Successfully"

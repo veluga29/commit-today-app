@@ -10,6 +10,10 @@ class PasswordNotMatch(Exception):
     ...
 
 
+class InvalidToken(Exception):
+    ...
+
+
 class DailyTodoAlreadyExists(Exception):
     ...
 
