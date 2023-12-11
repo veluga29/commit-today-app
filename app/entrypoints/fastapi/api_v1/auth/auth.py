@@ -63,7 +63,7 @@ class Auth:
 
         return out_schemas.LoginResponse(ok=True, message=enums.ResponseMessage.LOGIN_SUCCESS, data=None)
 
-    @router.post("/logout", status_code=status.HTTP_200_OK, dependencies=[Depends(JWTAuthorizer.get_user_info)])
+    @router.post("/logout", status_code=status.HTTP_200_OK)
     async def user_logout(self, response: Response) -> out_schemas.LogoutResponse:
         response.set_cookie(key="access_token", expires=0, max_age=0, httponly=True, secure=True)
         response.set_cookie(key="refresh_token", expires=0, max_age=0, httponly=True, secure=True)
