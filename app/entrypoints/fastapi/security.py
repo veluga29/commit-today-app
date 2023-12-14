@@ -6,7 +6,12 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.security.utils import get_authorization_scheme_param
 from jose import jwt, JWTError
 from typing import Any, Annotated
-from email_validator import validate_email, EmailNotValidError, EmailSyntaxError, EmailUndeliverableError
+from email_validator import (
+    validate_email,
+    EmailNotValidError,
+    EmailSyntaxError,
+    EmailUndeliverableError,
+)
 
 from app import settings
 
@@ -53,9 +58,9 @@ class JWTFromAuthorizationOrCookie(OAuth2PasswordBearer):
         )
 
     async def __call__(self, request: Request) -> str | None:
-        return await self.get_access_token_from_authorization(request) or await self.get_access_token_from_cookie(
+        return await self.get_access_token_from_authorization(
             request
-        )
+        ) or await self.get_access_token_from_cookie(request)
 
     async def get_access_token_from_authorization(self, request: Request) -> str | None:
         authorization = request.headers.get("Authorization")
@@ -90,7 +95,9 @@ class JWTAuthorizer:
     ALGORITHM = settings.AUTH_SETTINGS.JWT_ALGORITHM
     EXPIRES_DELTA = settings.AUTH_SETTINGS.JWT_EXPIRES_DELTA
     REFRESH_EXPIRES_DELTA = settings.AUTH_SETTINGS.JWT_REFRESH_EXPIRES_DELTA
-    JWT_COOKIE_AUTH = JWTFromAuthorizationOrCookie(tokenUrl="api/v1/external/auth/login", auto_error=False)
+    JWT_COOKIE_AUTH = JWTFromAuthorizationOrCookie(
+        tokenUrl="api/v1/external/auth/login", auto_error=False
+    )
 
     class CredentialsException(Exception):
         ...
@@ -112,7 +119,11 @@ class JWTAuthorizer:
             jti=uuid.uuid4().hex,
         )
         if is_refresh is False:
-            payload |= dict(username=user["username"], last_name=user["last_name"], first_name=user["first_name"])
+            payload |= dict(
+                username=user["username"],
+                last_name=user["last_name"],
+                first_name=user["first_name"],
+            )
         secret_key = cls.REFRESH_SECRET_KEY if is_refresh else cls.SECRET_KEY
 
         try:
@@ -136,7 +147,9 @@ class JWTAuthorizer:
             )
 
     @classmethod
-    async def get_user_info(cls, access_token: str | None = Depends(JWT_COOKIE_AUTH)):
+    async def get_user_info(
+        cls, access_token: str | None = Depends(JWT_COOKIE_AUTH)
+    ) -> UserInfo:
         try:
             if access_token is None:
                 raise cls.CredentialsException
@@ -149,7 +162,12 @@ class JWTAuthorizer:
             )
             if not (email and username and last_name and first_name):
                 raise cls.CredentialsException
-            user_info = cls.UserInfo(email=email, username=username, last_name=last_name, first_name=first_name)
+            user_info = cls.UserInfo(
+                email=email,
+                username=username,
+                last_name=last_name,
+                first_name=first_name,
+            )
         except (JWTError, cls.CredentialsException):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
