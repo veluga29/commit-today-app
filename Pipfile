@@ -29,11 +29,11 @@ black = "*"
 coverage = "*"
 locust = "*"
 pytest = "*"
-pytest-asyncio = "*"
 pytest-cov = "*"
 pytest-dotenv = "*"
 pytest-env = "*"
 Faker = "*"
+pytest-asyncio = "==0.21.1"
 
 [requires]
 python_version = "3.11"
