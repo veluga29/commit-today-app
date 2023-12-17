@@ -58,9 +58,9 @@ class JWTFromAuthorizationOrCookie(OAuth2PasswordBearer):
         )
 
     async def __call__(self, request: Request) -> str | None:
-        return await self.get_access_token_from_authorization(
+        return await self.get_access_token_from_authorization(request) or await self.get_access_token_from_cookie(
             request
-        ) or await self.get_access_token_from_cookie(request)
+        )
 
     async def get_access_token_from_authorization(self, request: Request) -> str | None:
         authorization = request.headers.get("Authorization")
@@ -95,9 +95,7 @@ class JWTAuthorizer:
     ALGORITHM = settings.AUTH_SETTINGS.JWT_ALGORITHM
     EXPIRES_DELTA = settings.AUTH_SETTINGS.JWT_EXPIRES_DELTA
     REFRESH_EXPIRES_DELTA = settings.AUTH_SETTINGS.JWT_REFRESH_EXPIRES_DELTA
-    JWT_COOKIE_AUTH = JWTFromAuthorizationOrCookie(
-        tokenUrl="api/v1/external/auth/login", auto_error=False
-    )
+    JWT_COOKIE_AUTH = JWTFromAuthorizationOrCookie(tokenUrl="api/v1/external/auth/login", auto_error=False)
 
     class CredentialsException(Exception):
         ...
@@ -147,9 +145,7 @@ class JWTAuthorizer:
             )
 
     @classmethod
-    async def get_user_info(
-        cls, access_token: str | None = Depends(JWT_COOKIE_AUTH)
-    ) -> UserInfo:
+    async def get_user_info(cls, access_token: str | None = Depends(JWT_COOKIE_AUTH)) -> UserInfo:
         try:
             if access_token is None:
                 raise cls.CredentialsException
