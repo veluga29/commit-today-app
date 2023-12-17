@@ -15,6 +15,8 @@ from app.adapters.auth.persistent_orm import metadata as auth_metadata
 from app.adapters.todo.persistent_orm import metadata as todo_metadata
 from app import settings
 from app.db import get_session
+from app.entrypoints.fastapi.security import JWTAuthorizer
+from app.tests import helpers
 
 
 # TODO: deprecated for pytest-asyncio 0.23
@@ -103,6 +105,7 @@ async def async_session(async_session_factory):
 @pytest_asyncio.fixture(scope="function")
 def testing_app(async_session):
     app.dependency_overrides[get_session] = lambda: async_session
+    app.dependency_overrides[JWTAuthorizer.get_user_info] = lambda: JWTAuthorizer.UserInfo(**helpers.user)
 
     yield app
     app.dependency_overrides = {}
