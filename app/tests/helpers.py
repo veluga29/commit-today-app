@@ -4,8 +4,16 @@ from faker import Faker
 from app.domain.todo import models as todo_models
 
 
-ID_MAX_LIMIT = 100000
 fake = Faker()
+
+ID_MAX_LIMIT = 100000
+
+user = dict(
+    email="happypuppy@google.com",
+    username="happypuppy",
+    last_name="Cho",
+    first_name="Lucian",
+)
 
 
 def create_todo_repo(user_id: int = 0):
