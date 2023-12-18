@@ -9,7 +9,7 @@ from app.utils.pagination import CursorPagination
 class TodoRepoService:
     @staticmethod
     async def create_todo_repo(
-        title: str, description: str, user_id: int = 0, *, repository: TodoRepoRepository
+        title: str, description: str, user_id: int, *, repository: TodoRepoRepository
     ) -> dict:
         todo_repo = todo_models.TodoRepo(title=title, description=description, user_id=user_id)
         res = await repository.create_todo_repo(todo_repo)

@@ -1,5 +1,6 @@
 import datetime
 from faker import Faker
+from typing import Any
 
 from app.domain.todo import models as todo_models
 
@@ -8,7 +9,8 @@ fake = Faker()
 
 ID_MAX_LIMIT = 100000
 
-user = dict(
+user: dict[str, Any] = dict(
+    user_id=0,
     email="happypuppy@google.com",
     username="happypuppy",
     last_name="Cho",

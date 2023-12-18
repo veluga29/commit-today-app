@@ -17,7 +17,7 @@ class TestTodoRepo:
     @pytest.mark.asyncio
     async def test_create_todo_repo(self, testing_app):
         # GIVEN
-        # user_id = random.choice(range(1, 100))  # TODO
+        user_id = helpers.user["user_id"]
         body = {"title": helpers.fake.word(), "description": helpers.fake.text()}
 
         # WHEN
@@ -38,7 +38,7 @@ class TestTodoRepo:
         assert repo_for_test["updated_at"]
         assert repo_for_test["title"] == body["title"]
         assert repo_for_test["description"] == body["description"]
-        # assert repo_for_test["user_id"] == user_id  # TODO
+        assert repo_for_test["user_id"] == user_id
 
     @pytest.mark.asyncio
     async def test_update_todo_repo(self, testing_app, async_session: AsyncSession):

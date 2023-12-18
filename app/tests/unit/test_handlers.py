@@ -16,13 +16,15 @@ class TestTodoRepo:
     @pytest.mark.asyncio
     async def test_create_todo_repo(self, async_session: AsyncSession):
         # GIVEN
-        user_id = random.choice(range(1, 100))
+        user_id = helpers.user["user_id"]
         title = helpers.fake.word()
         description = helpers.fake.text()
 
         # WHEN
         repository = TodoRepoRepository(async_session)
-        res = await TodoRepoService.create_todo_repo(title, description, user_id, repository=repository)
+        res = await TodoRepoService.create_todo_repo(
+            title=title, description=description, user_id=user_id, repository=repository
+        )
         q = await async_session.execute(select(models.TodoRepo).filter_by(id=res["id"]))
         repo = q.scalar()
 
@@ -35,7 +37,7 @@ class TestTodoRepo:
         assert res["updated_at"] == repo.updated_at
         assert res["title"] == repo.title
         assert res["description"] == repo.description
-        assert res["user_id"] == repo.user_id
+        assert res["user_id"] == repo.user_id == user_id
 
     @pytest.mark.asyncio
     async def test_update_todo_repo(self, async_session: AsyncSession):
