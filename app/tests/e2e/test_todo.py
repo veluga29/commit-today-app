@@ -43,7 +43,7 @@ class TestTodoRepo:
     @pytest.mark.asyncio
     async def test_update_todo_repo(self, testing_app, async_session: AsyncSession):
         # GIVEN
-        user_id = random.choice(range(1, 100))
+        user_id = helpers.user["user_id"]
         repo = helpers.create_todo_repo(user_id=user_id)
         async_session.add(repo)
         await async_session.commit()
@@ -75,7 +75,8 @@ class TestTodoRepo:
     @pytest.mark.asyncio
     async def test_update_todo_repo_if_not_sending_request_body(self, testing_app, async_session: AsyncSession):
         # GIVEN
-        repo = helpers.create_todo_repo()
+        user_id = helpers.user["user_id"]
+        repo = helpers.create_todo_repo(user_id=user_id)
         async_session.add(repo)
         await async_session.commit()
 
@@ -114,8 +115,8 @@ class TestTodoRepo:
     @pytest.mark.asyncio
     async def test_get_todo_repos(self, testing_app, async_session: AsyncSession):
         # GIVEN
-        # user_id = random.choice(range(1, 100)) # TODO
-        repos = helpers.create_todo_repos(n=20)
+        user_id = helpers.user["user_id"]
+        repos = helpers.create_todo_repos(user_id=user_id, n=20)
         async_session.add_all(repos)
         await async_session.commit()
 
@@ -150,10 +151,10 @@ class TestTodoRepo:
     @pytest.mark.asyncio
     async def test_get_todo_repos_for_pagination(self, testing_app, async_session: AsyncSession):
         # GIVEN
-        # user_id = random.choice(range(1, 100)) # TODO
+        user_id = helpers.user["user_id"]
         n = 20
         page_size = 10
-        repos = helpers.create_todo_repos(n=n)
+        repos = helpers.create_todo_repos(user_id=user_id, n=n)
         async_session.add_all(repos)
         await async_session.commit()
 

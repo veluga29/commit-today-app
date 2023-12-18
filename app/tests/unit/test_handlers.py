@@ -42,7 +42,7 @@ class TestTodoRepo:
     @pytest.mark.asyncio
     async def test_update_todo_repo(self, async_session: AsyncSession):
         # GIVEN
-        user_id = random.choice(range(1, 100))
+        user_id = helpers.user["user_id"]
         repo = helpers.create_todo_repo(user_id=user_id)
         async_session.add(repo)
         await async_session.commit()
@@ -82,16 +82,18 @@ class TestTodoRepo:
     @pytest.mark.asyncio
     async def test_get_todo_repos(self, async_session: AsyncSession):
         # GIVEN
-        # user_id = random.choice(range(1, 100))  # TODO
+        user_id = helpers.user["user_id"]
         cursor = None
         page_size = 10
-        repos = helpers.create_todo_repos(n=20)
+        repos = helpers.create_todo_repos(user_id=user_id, n=20)
         async_session.add_all(repos)
         await async_session.commit()
 
         # WHEN
         repository = TodoRepoRepository(async_session)
-        res = await TodoRepoService.get_todo_repos(user_id=0, cursor=cursor, page_size=page_size, repository=repository)
+        res = await TodoRepoService.get_todo_repos(
+            user_id=user_id, cursor=cursor, page_size=page_size, repository=repository
+        )
 
         # THEN
         assert res
@@ -115,15 +117,17 @@ class TestTodoRepo:
     @pytest.mark.asyncio
     async def test_get_todo_repos_for_pagination(self, async_session: AsyncSession):
         # GIVEN
-        # user_id = random.choice(range(1, 100))  # TODO
+        user_id = helpers.user["user_id"]
         page_size = 10
-        repos = helpers.create_todo_repos(n=20)
+        repos = helpers.create_todo_repos(user_id=user_id, n=20)
         async_session.add_all(repos)
         await async_session.commit()
 
         # WHEN
         repository = TodoRepoRepository(async_session)
-        res = await TodoRepoService.get_todo_repos(user_id=0, cursor=None, page_size=page_size, repository=repository)
+        res = await TodoRepoService.get_todo_repos(
+            user_id=user_id, cursor=None, page_size=page_size, repository=repository
+        )
 
         # THEN
         assert res
@@ -229,7 +233,6 @@ class TestDailyTodo:
     async def test_create_daily_todo_if_daily_todo_already_exists(self, async_session: AsyncSession):
         # GIVEN
         date = helpers.get_random_date()
-
         todo_repo = helpers.create_todo_repo()
         daily_todo = helpers.create_daily_todo(todo_repo=todo_repo, date=date)
         async_session.add_all([todo_repo, daily_todo])
