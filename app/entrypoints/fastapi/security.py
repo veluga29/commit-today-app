@@ -103,6 +103,7 @@ class JWTAuthorizer:
     @dataclass
     class UserInfo:
         email: str
+        user_id: int
         username: str
         last_name: str
         first_name: str
@@ -118,6 +119,7 @@ class JWTAuthorizer:
         )
         if is_refresh is False:
             payload |= dict(
+                user_id=user["id"],
                 username=user["username"],
                 last_name=user["last_name"],
                 first_name=user["first_name"],
@@ -150,16 +152,18 @@ class JWTAuthorizer:
             if access_token is None:
                 raise cls.CredentialsException
             payload = cls.decode(access_token)
-            email, username, last_name, first_name = (
+            email, user_id, username, last_name, first_name = (
                 payload.get("sub"),
+                payload.get("user_id"),
                 payload.get("username"),
                 payload.get("last_name"),
                 payload.get("first_name"),
             )
-            if not (email and username and last_name and first_name):
+            if not (email and user_id and username and last_name and first_name):
                 raise cls.CredentialsException
             user_info = cls.UserInfo(
                 email=email,
+                user_id=user_id,
                 username=username,
                 last_name=last_name,
                 first_name=first_name,
