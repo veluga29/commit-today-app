@@ -61,3 +61,4 @@ AUTH_SETTINGS = AuthSettings()
 
 STAGE = os.environ.get("STAGE", "local")
 API_V1_STR: str = os.environ.get("API_V1_STR", "/api/v1")
+BACKEND_CORS_ORIGINS: list[str] = eval(os.environ.get("BACKEND_CORS_ORIGINS", "['*']"))
